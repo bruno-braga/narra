@@ -1,6 +1,6 @@
 <template>
   <div class="card">
-    <div class="card-header">{{ formTitle }}</div>
+    <div class="card-header">Create a program</div>
 
     <div class="card-body">
       <form @submit.prevent="submit" enctype="multipart/form-data">
@@ -44,7 +44,6 @@
 
 <script>
   import { required } from 'vuelidate/lib/validators';
-  import { eventBus } from '../eventBus';
 
   export default {
     name: 'programFormComponent',
@@ -68,26 +67,6 @@
       title: { required },
       file: { required }
     },
-    mounted() {
-      eventBus.$on('populateForm', (res) => {
-        this.program.title = res.title;
-        this.program.description = res.description;
-
-        this.formTitle = 'edit';
-        this.instanceRoute += `/${res.id}`;
-        this.form.append('_method', 'PUT');
-      });
-
-      eventBus.$on('setAddForm', (set) => {
-        this.form = new FormData()
-        this.formTitle = 'add';
-        this.instanceRoute = this.route;
-
-        for(let key in this.program) {
-          this.program[key] = null
-        }
-      });
-    },
     methods: {
       setFile(event) {
         this.program.file = event.target.files[0]
@@ -108,12 +87,6 @@
           this.form = new FormData();
 
           this.$refs.file.value = '';
-
-          for(let key in this.program) {
-            this.program[key] = null
-          }
-
-          eventBus.$emit('updateEpisodeList', response)
         }
       }
     }
