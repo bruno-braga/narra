@@ -6,21 +6,13 @@
       <div class="col-md-8">
         <div class="card">
           <div class="card-header">
-            Programs
+            Programs <a href="{{ url('/programs/create') }}" class="btn btn-primary float-right">Add</a>
           </div>
 
           <div class="card-body">
             <program-list-component :route="'{{ url('programs') }}'" :programs='@json($programs)'></list-component>
           </div>
         </div>
-      </div>
-
-      <div class="col-md-4">
-        <program-form-component 
-          :token="'{{ csrf_token() }}'" 
-          :route="'{{ route('programs.store') }}'"
-        >
-        </program-form-component>
       </div>
     </div>
   </div>
