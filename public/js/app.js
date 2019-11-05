@@ -2139,7 +2139,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuelidate/lib/validators */ "./node_modules/vuelidate/lib/validators/index.js");
 /* harmony import */ var vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _eventBus__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../eventBus */ "./resources/js/eventBus.js");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -2191,10 +2190,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 
-
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'programFormComponent',
-  props: ['route', 'token'],
+  props: ['isEdit', 'data', 'route', 'token'],
+  created: function created() {
+    if (this.data) {
+      this.program.title = this.data.title;
+      this.program.description = this.data.description;
+    }
+
+    if (this.isEdit) {
+      this.instanceRoute += "/".concat(this.data.id);
+      this.form.append('_method', 'PUT');
+    }
+  },
   data: function data() {
     return {
       program: {
@@ -2202,7 +2211,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         file: null,
         description: null
       },
-      formTitle: 'add',
       instanceRoute: this.route,
       form: new FormData()
     };
@@ -2215,27 +2223,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       required: vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_1__["required"]
     }
   },
-  mounted: function mounted() {
-    var _this = this;
-
-    _eventBus__WEBPACK_IMPORTED_MODULE_2__["eventBus"].$on('populateForm', function (res) {
-      _this.program.title = res.title;
-      _this.program.description = res.description;
-      _this.formTitle = 'edit';
-      _this.instanceRoute += "/".concat(res.id);
-
-      _this.form.append('_method', 'PUT');
-    });
-    _eventBus__WEBPACK_IMPORTED_MODULE_2__["eventBus"].$on('setAddForm', function (set) {
-      _this.form = new FormData();
-      _this.formTitle = 'add';
-      _this.instanceRoute = _this.route;
-
-      for (var key in _this.program) {
-        _this.program[key] = null;
-      }
-    });
-  },
   methods: {
     setFile: function setFile(event) {
       this.program.file = event.target.files[0];
@@ -2244,7 +2231,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _submit = _asyncToGenerator(
       /*#__PURE__*/
       _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
-        var response, key;
+        var response;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
@@ -2260,17 +2247,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 response = _context.sent;
 
                 if (response) {
-                  this.form["delete"]('_method');
-                  this.formTitle = 'add';
-                  this.instanceRoute = this.route;
-                  this.form = new FormData();
                   this.$refs.file.value = '';
-
-                  for (key in this.program) {
-                    this.program[key] = null;
-                  }
-
-                  _eventBus__WEBPACK_IMPORTED_MODULE_2__["eventBus"].$emit('updateEpisodeList', response);
                 }
 
               case 8:
@@ -2346,19 +2323,12 @@ __webpack_require__.r(__webpack_exports__);
     msgHandler: function msgHandler(i, operationMethod) {
       if (operationMethod == 'cancel') {
         this.setMsgHandler(i, false);
-        _eventBus__WEBPACK_IMPORTED_MODULE_0__["eventBus"].$emit('setAddForm', true);
         return;
       }
 
-      if (operationMethod != this.lastOperationClicked) {
-        this.operationMethod = operationMethod;
-        this.colorClass = operationMethod == 'delete' ? 'text-danger' : 'text-warning';
-        this.lastOperationClicked = operationMethod;
-      }
-
-      if (!this.msgHandlerArray[i]) {
-        this.toggleMsgHandler(i);
-      }
+      this.colorClass = 'text-danger';
+      this.lastOperationClicked = operationMethod;
+      this.toggleMsgHandler(i);
     },
     toggleMsgHandler: function toggleMsgHandler(i) {
       this.$set(this.msgHandlerArray, i, !this.msgHandlerArray[i]);
@@ -2366,15 +2336,11 @@ __webpack_require__.r(__webpack_exports__);
     setMsgHandler: function setMsgHandler(i, val) {
       this.$set(this.msgHandlerArray, i, val);
     },
-    confirm: function confirm(episode) {
+    confirm: function confirm(program) {
       var _this2 = this;
 
-      if (this.operationMethod == 'put') {
-        return _eventBus__WEBPACK_IMPORTED_MODULE_0__["eventBus"].$emit('populateForm', episode);
-      }
-
-      window.axios["delete"]("".concat(this.route, "/").concat(episode.id)).then(function (res) {
-        var index = _this2.programs.indexOf(episode);
+      window.axios["delete"]("".concat(this.route, "/").concat(program.id)).then(function (res) {
+        var index = _this2.programs.indexOf(program);
 
         _this2.programs.splice(index, 1);
       });
@@ -38783,7 +38749,7 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "card" }, [
-    _c("div", { staticClass: "card-header" }, [_vm._v(_vm._s(_vm.formTitle))]),
+    _c("div", { staticClass: "card-header" }, [_vm._v("Create a program")]),
     _vm._v(" "),
     _c("div", { staticClass: "card-body" }, [
       _c(
@@ -38967,14 +38933,10 @@ var render = function() {
         ),
         _vm._v(" "),
         _c(
-          "span",
+          "a",
           {
             staticStyle: { float: "right", cursor: "pointer" },
-            on: {
-              click: function($event) {
-                return _vm.msgHandler(i, "put")
-              }
-            }
+            attrs: { href: "/programs/" + program.id + "/edit" }
           },
           [_vm._v("Edit")]
         ),
