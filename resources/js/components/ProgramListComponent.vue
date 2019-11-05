@@ -5,7 +5,7 @@
       {{ program.title }}
 
       <span @click="msgHandler(i, 'delete')" style="float: right; cursor: pointer;">&nbsp; Delete</span>
-      <span @click="msgHandler(i, 'put')" style="float: right; cursor: pointer;">Edit</span>
+      <a :href="`/programs/${program.id}/edit`" style="float: right; cursor: pointer;">Edit</a>
 
       <span v-if="msgHandlerArray[i]" style="float: right;">
         <span @click="confirm(program)" :class="colorClass">confirm</span> | <span @click="msgHandler(i, 'cancel')">cancel</span> - &nbsp;
