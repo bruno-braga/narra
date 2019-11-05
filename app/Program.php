@@ -49,7 +49,7 @@ class Program extends Model
       static::saving(function($program) {
           $hasAtLeastAImage = $program->images()->get()->count() > 0; 
           $hasFile = !is_null(self::$file);
-          
+
           if ($hasAtLeastAImage && $hasFile) {
               $oldImage = $program->images->image_path;
 
@@ -63,7 +63,10 @@ class Program extends Model
 
               $program->saveFiles(self::$file, $folderName, $fileName);
               $program->destroyFile($oldImage);
+
           }
+
+          self::$file = NULL;
       });
 
       static::deleting(function($program) {
