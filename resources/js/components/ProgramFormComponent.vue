@@ -48,9 +48,22 @@
   export default {
     name: 'programFormComponent',
     props: [
+      'isEdit',
+      'data',
       'route',
       'token'
     ],
+    created() {
+      if (this.data) {
+          this.program.title = this.data.title;
+          this.program.description = this.data.description;
+      }
+
+      if (this.isEdit) {
+        this.instanceRoute += `/${this.data.id}`;  
+        this.form.append('_method', 'PUT');
+      }
+    },
     data() {
       return {
         program: {
@@ -58,7 +71,6 @@
           file: null,
           description: null
         },
-        formTitle: 'add',
         instanceRoute: this.route, 
         form: new FormData()
       }
