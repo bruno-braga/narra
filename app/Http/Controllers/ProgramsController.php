@@ -84,7 +84,12 @@ class ProgramsController extends Controller
      */
     public function edit($id)
     {
-        //
+        return view(
+            'programs.edit',
+            [ 
+                'program' => Program::find($id)
+            ]
+        );
     }
 
     /**
