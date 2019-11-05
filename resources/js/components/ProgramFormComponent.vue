@@ -80,12 +80,6 @@
         let response = await window.axios.post(this.instanceRoute, this.form);
 
         if (response) {
-          this.form.delete('_method');
-          this.formTitle = 'add';
-          this.instanceRoute = this.route;
-
-          this.form = new FormData();
-
           this.$refs.file.value = '';
         }
       }
