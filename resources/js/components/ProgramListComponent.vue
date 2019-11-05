@@ -60,10 +60,6 @@
       },
       confirm(program) {
         window.axios.delete(`${this.route}/${program.id}`)
-          return eventBus.$emit('populateForm', episode);
-        }
-
-        window.axios.delete(`${this.route}/${episode.id}`)
           .then(res => {
             let index = this.programs.indexOf(program)
             this.programs.splice(index, 1)
