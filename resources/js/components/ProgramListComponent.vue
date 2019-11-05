@@ -58,14 +58,14 @@
       setMsgHandler(i, val) {
         this.$set(this.msgHandlerArray, i, val);
       },
-      confirm(episode) {
-        if (this.operationMethod == 'put') {
+      confirm(program) {
+        window.axios.delete(`${this.route}/${program.id}`)
           return eventBus.$emit('populateForm', episode);
         }
 
         window.axios.delete(`${this.route}/${episode.id}`)
           .then(res => {
-            let index = this.programs.indexOf(episode)
+            let index = this.programs.indexOf(program)
             this.programs.splice(index, 1)
           });
       }
