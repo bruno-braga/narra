@@ -45,19 +45,12 @@
       msgHandler(i, operationMethod) {
         if (operationMethod == 'cancel') {
           this.setMsgHandler(i, false);
-          eventBus.$emit('setAddForm', true);
           return 
         }
 
-        if (operationMethod != this.lastOperationClicked) {
-          this.operationMethod = operationMethod
-          this.colorClass = operationMethod == 'delete' ? 'text-danger' : 'text-warning'
-          this.lastOperationClicked = operationMethod;
-        }
-
-        if (!this.msgHandlerArray[i]) {
-          this.toggleMsgHandler(i);
-        }
+        this.colorClass = 'text-danger';
+        this.lastOperationClicked = operationMethod;
+        this.toggleMsgHandler(i);
       },
       toggleMsgHandler(i) {
         this.$set(this.msgHandlerArray, i, !this.msgHandlerArray[i])
