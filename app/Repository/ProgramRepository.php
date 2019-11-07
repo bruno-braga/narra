@@ -26,7 +26,10 @@ class ProgramRepository implements ProgramRepositoryInterface
             ->select(
                 'programs.id',
                 'programs.title',
-                DB::raw('CONCAT(images.path, images.filename) as image')
+                DB::RAW('IFNULL(' .
+                    DB::raw('CONCAT(images.path, images.filename)')
+                    . ', "/storage/default-podcast.png") as image'
+                )
             )
             ->leftJoin('images', 'programs.id', '=', 'images.imageable_id')
             ->get();
