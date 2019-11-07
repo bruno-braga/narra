@@ -1,17 +1,24 @@
 <template>
-  <ul class="list-group">
-    <li v-for="(program, i) in programsFromProps" class="list-group-item">
-      <img :src="program.image" class="img-fluid img-thumbnail" alt="Responsive image" style="width: 100px;">
-      {{ program.title }}
+  <div>
+    <ul class="list-group">
+      <li v-for="(program, i) in programsFromProps" class="list-group-item">
+        <img :src="program.image" class="img-fluid img-thumbnail" alt="Responsive image" style="width: 100px;">
+        {{ program.title }}
 
-      <span @click="msgHandler(i, 'delete')" style="float: right; cursor: pointer;">&nbsp; Delete</span>
-      <a :href="`/programs/${program.id}/edit`" style="float: right; cursor: pointer;">Edit</a>
+        <span @click="msgHandler(i, 'delete')" style="float: right; cursor: pointer;">&nbsp; Delete</span>
+        <a :href="`/programs/${program.id}/edit`" style="float: right; cursor: pointer;">Edit</a>
 
-      <span v-if="msgHandlerArray[i]" style="float: right;">
-        <span @click="confirm(program)" :class="colorClass">confirm</span> | <span @click="msgHandler(i, 'cancel')">cancel</span> - &nbsp;
-      </span> 
-    </li>
-  </ul>
+        <span v-if="msgHandlerArray[i]" style="float: right;">
+          <span @click="confirm(program)" :class="colorClass">confirm</span> | <span @click="msgHandler(i, 'cancel')">cancel</span> - &nbsp;
+        </span> 
+      </li>
+    </ul>
+
+    <div v-if="programsFromProps.length == 0">
+      Click Add to start your podcast!
+    </div>
+
+  </div>
 </template>
 
 <script>
