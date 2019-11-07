@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateIsoLangCodesTable extends Migration
+class AddFolderColumnToPrograms extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,10 @@ class CreateIsoLangCodesTable extends Migration
      */
     public function up()
     {
-        Schema::create('iso_lang_codes', function (Blueprint $table) {
-            \DB::unprepared(file_get_contents('./storage/db.sql'));
+        Schema::table('programs', function (Blueprint $table) {
+            $table
+                ->string('folder')
+                ->after('slug');
         });
     }
 
@@ -25,6 +27,8 @@ class CreateIsoLangCodesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('iso_lang_codes');
+        Schema::table('programs', function (Blueprint $table) {
+            //
+        });
     }
 }
