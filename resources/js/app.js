@@ -23,8 +23,8 @@ Vue.use(Vuelidate);
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
-Vue.component('list-component', require('./components/ExampleComponent.vue').default);
-Vue.component('form-component', require('./components/FormComponent.vue').default);
+Vue.component('episode-list-component', require('./components/EpisodeListComponent.vue').default);
+Vue.component('episode-form-component', require('./components/EpisodeFormComponent.vue').default);
 Vue.component('program-form-component', require('./components/ProgramFormComponent.vue').default);
 Vue.component('program-list-component', require('./components/ProgramListComponent.vue').default);
 
