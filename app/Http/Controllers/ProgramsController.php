@@ -130,12 +130,8 @@ class ProgramsController extends Controller
             return response()->json(401);
         }
 
-        if ($program->images->exists()) {
-            if ($program->delete()) {
-                $program->destroyFile($program->images->image_path);
-            } else {
-                return respnse()->json(404);
-            }
+        if (!$program->delete()) {
+            return respnse()->json(404);
         }
         
         return response()->json(204);
