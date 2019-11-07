@@ -26,47 +26,53 @@ class Program extends Model
       parent::boot();
 
       static::creating(function($program) {
-        $program->slug = Str::slug($program->title, '-');
+          $program->folder = self::getUniqFolderName();
+          $program->slug = Str::slug($program->title, '-');
+
+          Storage::disk(self::$PUBLIC)->makeDirectory($program->folder);
       });
 
       static::created(function($program) {
-          $folderName = NULL; 
-          do {
-            $folderName = uniqid();
-          } while(Storage::exists($folderName));
+          if (!is_null(self::$file)) {
+              $path = self::createFolderPath($program->folder);
+              $fileName = self::createFileName(self::$file, $program);
 
-          $path = '/storage/' . $folderName . '/';
-          $fileName = $program->id . '_' . self::$file->getClientOriginalName();
+              $program->images()->create([
+                  'path' => $path,
+                  'filename' => $fileName,
+              ]);
+
+              $folderPath = self::createPublicFolderPath($program->folder);
+
+              return self::$file->storeAs($folderPath, $fileName);
+          }
 
           $program->images()->create([
-              'path' => $path,
-              'filename' => $fileName,
+              'path' => '/storage/',
+              'filename' => 'default-podcast.png',
           ]);
-
-          $program->saveFiles(self::$file, $folderName, $fileName);
       });
 
       static::saving(function($program) {
           $hasAtLeastAImage = $program->images()->get()->count() > 0; 
           $hasFile = !is_null(self::$file);
 
-          if ($hasAtLeastAImage && $hasFile) {
-              $oldImage = $program->images->image_path;
-
+          if ($hasFile) {
               $program->slug = Str::slug($program->title, '-');
-              $folderName = substr($program->images->path, 8);
+              $path= '/storage/' . $program->folder . '/';
               $fileName = $program->id . '_' . self::$file->getClientOriginalName();
 
+              if ($hasAtLeastAImage) {
+                  Storage::disk(self::$PUBLIC)->delete($program->folder . '/' . $program->images->filename);
+                  $folderPath = self::createPublicFolderPath($program->folder);
+                  self::$file->storeAs($folderPath, $fileName);
+              }
+
               $program->images()->update([
-                  'filename' => $fileName,
+                  'path' => $path,
+                  'filename' => $fileName
               ]);
-
-              $program->saveFiles(self::$file, $folderName, $fileName);
-              $program->destroyFile($oldImage);
-
           }
-
-          self::$file = NULL;
       });
 
       static::deleting(function($program) {
@@ -89,4 +95,13 @@ class Program extends Model
         return $this->path . '' . $this->filename;
     }
 
+  private static function getUniqFolderName()
+  {
+      $folderName = NULL; 
+      do {
+        $folderName = uniqid();
+      } while(Storage::exists($folderName));
+
+      return $folderName;
+  }
 }
