@@ -14,11 +14,17 @@ class ProgramCollection extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        $program = [
             'id' => $this->id,
             'title' => $this->title,
-            'image' => $this->images->image_path,
+            'image' => '/storage/default-podcast.png',
             'description' => $this->description
         ];
+
+        if ($this->images()->exists()) {
+            $program['image'] = $this->images->image_path;
+        }
+
+        return $program;
     }
 }
