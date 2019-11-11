@@ -30,6 +30,14 @@
     </div>
 
     <div class="form-group row">
+      <label for="file" class="col-md-4 col-form-label text-md-right">File</label>
+
+      <div class="col-md-6">
+        <input ref="cover" name="cover" type="file" @change="setCover($event)" />
+      </div>
+    </div>
+
+    <div class="form-group row">
       <label for="description" class="col-md-4 col-form-label text-md-right">Description</label>
 
       <div class="col-md-6">
@@ -65,6 +73,7 @@
           title: null,
           programId: null,
           file: null,
+          cover: null,
           description: null
         },
         formTitle: 'add',
@@ -91,23 +100,30 @@
     methods: {
       setFile(event) {
         this.episode.file = event.target.files[0]
+        event.target.files.pop();
+      },
+      setCover(event) {
+        this.episode.cover = event.target.files[0]
+        event.target.files.pop();
       },
       async submit() {
         this.form.append('_token', this.token);
         this.form.append('title', this.episode.title);
         this.form.append('program_id', this.episode.programId);
         this.form.append('file', this.episode.file);
+        this.form.append('cover', this.episode.cover);
         this.form.append('description', this.episode.description);
 
         let response = await window.axios.post(this.instanceRoute, this.form);
 
         if (response) {
           this.form.delete('_method');
-          this.formTitle = 'add';
           this.instanceRoute = this.route;
 
           this.form = new FormData();
+
           this.$refs.audio.value = '';
+          this.$refs.cover.value = '';
 
           for(let key in this.episode) {
             this.episode[key] = null

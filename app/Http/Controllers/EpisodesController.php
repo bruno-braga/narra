@@ -83,6 +83,7 @@ class EpisodesController extends Controller
     public function store(Request $request)
     {
         Episode::$file = $request->file('file');
+        Episode::$cover = $request->file('cover');
 
         $data = $request->only([
             'title',
@@ -134,6 +135,9 @@ class EpisodesController extends Controller
      */
     public function update(Request $request, $id)
     {
+        Episode::$cover= $request->file('cover');
+        Episode::$file = $request->file('file');
+
         $episode = Episode::find($id);
 
         $data = $request->only([
@@ -141,10 +145,6 @@ class EpisodesController extends Controller
           'program_id',
           'description'
         ]);
-
-        if ($request->hasFile('file')) {
-            Episode::$file = $request->file('file');
-        }
 
         $episode->update($data);
 

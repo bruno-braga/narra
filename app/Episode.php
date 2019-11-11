@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 use App\User;
 use App\Audio;
+use App\Image;
 use App\Program;
 
 use App\Traits\UploadTrait;
@@ -18,6 +19,7 @@ class Episode extends Model
     use UploadTrait;
 
     public static $file;
+    public static $cover;
 
     /**
      * The attributes that are mass assignable.
@@ -33,8 +35,10 @@ class Episode extends Model
         parent::boot();
 
         static::created(function($episode) {
+            $path = self::createFolderPath($episode->program->folder);
+            $folderPath = self::createPublicFolderPath($episode->program->folder);
+
             if (!is_null(self::$file)) {
-                $path = self::createFolderPath($episode->program->folder);
                 $fileName = self::createFileName(self::$file, $episode);
 
                 $episode->audios()->create([
@@ -42,42 +46,72 @@ class Episode extends Model
                     'filename' => $fileName,
                 ]);
 
-                $folderPath = self::createPublicFolderPath($episode->program->folder);
 
                 self::$file->storeAs($folderPath, $fileName);
             }
+
+            if (!is_null(self::$cover)) {
+                $fileName = self::createFileName(self::$cover, $episode);
+
+                $episode->images()->create([
+                    'path' => $path,
+                    'filename' => $fileName
+                  ]);
+
+                self::$cover->storeAs($folderPath, $fileName);
+            }
         });
 
-      static::saving(function($episode) {
-          $hasAtLeastAImage = $episode->audios()->get()->count() > 0; 
-          $hasFile = !is_null(self::$file);
+        static::saving(function($episode) {
+            $hasAudio = $episode->audios()->get()->count() > 0; 
+            $hasNewAudio= !is_null(self::$file);
 
-          if ($hasFile) {
-              $path= '/storage/' . $episode->program->folder . '/';
-              $fileName = $episode->id . '_' . self::$file->getClientOriginalName();
+            if ($hasNewAudio) {
+                $path= '/storage/' . $episode->program->folder . '/';
+                $fileName = $episode->id . '_' . self::$file->getClientOriginalName();
 
-              if ($hasAtLeastAImage) {
-                  Storage::disk(self::$PUBLIC)->delete($episode->program->folder . '/' . $episode->audios->first()->filename);
-                  $folderPath = self::createPublicFolderPath($episode->program->folder);
-                  self::$file->storeAs($folderPath, $fileName);
-              }
+                if ($hasAudio) {
+                    Storage::disk(self::$PUBLIC)->delete($episode->program->folder . '/' . $episode->audios->first()->filename);
+                    $folderPath = self::createPublicFolderPath($episode->program->folder);
+                    self::$file->storeAs($folderPath, $fileName);
+                }
 
-              $episode->audios()->update([
-                  'path' => $path,
-                  'filename' => $fileName
-              ]);
-          }
-      });
+                $episode->audios()->update([
+                    'path' => $path,
+                    'filename' => $fileName
+                ]);
+            }
 
-      static::deleting(function($program) {
-          $program->images()->delete();
-      });
+            $hasCover= $episode->images()->get()->count() > 0; 
+            $hasNewCover = !is_null(self::$cover);
 
+            if ($hasNewCover) {
+                $path= '/storage/' . $episode->program->folder . '/';
+                $fileName = $episode->id . '_' . self::$cover->getClientOriginalName();
+
+                if ($hasAudio) {
+                    Storage::disk(self::$PUBLIC)->delete($episode->program->folder . '/' . $episode->images->first()->filename);
+                    $folderPath = self::createPublicFolderPath($episode->program->folder);
+                    self::$cover->storeAs($folderPath, $fileName);
+                }
+
+                $episode->images()->update([
+                    'path' => $path,
+                    'filename' => $fileName
+                ]);
+            }
+        });
 
         static::deleting(function($episode) {
-            $path = $episode->audios->first()->audio_path;
+            $audioPath = $episode->audios->first()->audio_path;
+            $imagePath = $episode->images->first()->image_path;
+
+
             $episode->audios()->delete();
-            $episode->destroyFile($path);
+            $episode->images()->delete();
+
+            $episode->destroyFile($audioPath);
+            $episode->destroyFile($imagePath);
         });
     }
 
@@ -89,6 +123,11 @@ class Episode extends Model
     public function audios()
     {
         return $this->morphMany(Audio::class, 'audiable');
+    }
+
+    public function images()
+    {
+        return $this->morphOne(Image::class, 'imageable');
     }
 
     public function program()
