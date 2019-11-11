@@ -2,20 +2,21 @@
 
 @section('content')
   <div class="container">
-    <div class="row">
+    <div class="row justify-content-center">
       <div class="col-md-8">
-        <episode-list-component 
-          :programs-prop='@json($programs)'
-          :route="'{{ url('episodes') }}'">
-        </list-component>
-      </div>
+        <div class="card">
+          <div class="card-header">
+            Episodes <a href="{{ url('/episodes/create') }}" class="btn btn-primary float-right">Add</a>
+          </div>
 
-      <div class="col-md-4">
-        <episode-form-component
-          :programs='@json($programs)'
-          :token="'{{ csrf_token() }}'"
-          :route="'{{ route('episodes.store') }}'">
-        </form-component>
+          <div class="card-body">
+            <episode-list-component 
+              :programs-prop='@json($programs)'
+              :route="'{{ url('episodes') }}'">
+            </list-component>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
