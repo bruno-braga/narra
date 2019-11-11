@@ -115,7 +115,14 @@ class EpisodesController extends Controller
      */
     public function edit(Episode $episode)
     {
-        //
+        return view(
+            'episodes.edit',
+            [ 
+                'episode' => $episode,
+                'programs' => Program::all()
+            ]
+        );
+
     }
 
     /**
