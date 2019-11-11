@@ -58,7 +58,20 @@ class EpisodesController extends Controller
      */
     public function create()
     {
-        return view('episodes.create');
+        $episodes = $this
+            ->episode
+            ->getAll();
+
+        $programs = $this
+            ->program
+            ->getProgramsWithEpisodes($episodes, Auth::id());
+
+        return view(
+            'episodes.create',
+            [
+                'programs' => $programs
+            ]
+        );
     }
 
     /**
