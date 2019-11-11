@@ -32,46 +32,52 @@ class Episode extends Model
     {
         parent::boot();
 
+        static::created(function($episode) {
+            if (!is_null(self::$file)) {
+                $path = self::createFolderPath($episode->program->folder);
+                $fileName = self::createFileName(self::$file, $episode);
+
+                $episode->audios()->create([
+                    'path' => $path,
+                    'filename' => $fileName,
+                ]);
+
+                $folderPath = self::createPublicFolderPath($episode->program->folder);
+
+                self::$file->storeAs($folderPath, $fileName);
+            }
+        });
+
+      static::saving(function($episode) {
+          $hasAtLeastAImage = $episode->audios()->get()->count() > 0; 
+          $hasFile = !is_null(self::$file);
+
+          if ($hasFile) {
+              $path= '/storage/' . $episode->program->folder . '/';
+              $fileName = $episode->id . '_' . self::$file->getClientOriginalName();
+
+              if ($hasAtLeastAImage) {
+                  Storage::disk(self::$PUBLIC)->delete($episode->program->folder . '/' . $episode->audios->first()->filename);
+                  $folderPath = self::createPublicFolderPath($episode->program->folder);
+                  self::$file->storeAs($folderPath, $fileName);
+              }
+
+              $episode->audios()->update([
+                  'path' => $path,
+                  'filename' => $fileName
+              ]);
+          }
+      });
+
+      static::deleting(function($program) {
+          $program->images()->delete();
+      });
+
+
         static::deleting(function($episode) {
             $path = $episode->audios->first()->audio_path;
             $episode->audios()->delete();
             $episode->destroyFile($path);
-        });
-
-        static::created(function($episode) {
-            $path = $episode->program->images->path; 
-            $fileName = $episode->id . '_' . self::$file->getClientOriginalName();
-
-            $episode->audios()->create([
-                'path' => $path,
-                'filename' => $fileName,
-            ]);
-
-            $episode->saveFiles(self::$file, substr($path, 8), $fileName);
-        });
-
-        // When saving, if an audio already exists
-        // means that we are updating our model
-        // this is being done because if any info
-        // on the model doesn't change the updating
-        // event is not triggered
-        static::saving(function($episode) {
-            $hasAtLeastAImage = $episode->audios()->get()->count() > 0; 
-            $hasFile = !is_null(self::$file);
-            
-            if ($hasAtLeastAImage && $hasFile) {
-                $oldImage = $episode->audios->first()->audio_path;
-
-                $folderName = substr($episode->audios->first()->path, 8);
-                $fileName = $episode->id . '_' . self::$file->getClientOriginalName();
-
-                $episode->audios()->update([
-                    'filename' => $fileName,
-                ]);
-
-                $episode->saveFiles(self::$file, $folderName, $fileName);
-                $episode->destroyFile($oldImage);
-            }
         });
     }
 
@@ -88,5 +94,15 @@ class Episode extends Model
     public function program()
     {
         return $this->belongsTo(Program::class);
+    }
+
+    private static function getUniqFolderName()
+    {
+        $folderName = NULL; 
+        do {
+          $folderName = uniqid();
+        } while(Storage::exists($folderName));
+
+        return $folderName;
     }
 }
