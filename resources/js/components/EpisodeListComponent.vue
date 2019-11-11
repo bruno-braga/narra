@@ -13,11 +13,11 @@
             Your browser does not support the audio element.
           </audio> 
 
-          <span @click="msgHandler(programIndex, episodeIndex, 'delete', episode)" style="float: right; cursor: pointer;">&nbsp; Delete</span>
-          <span @click="msgHandler(programIndex, episodeIndex, 'put', episode)" style="float: right; cursor: pointer;">Edit</span>
+          <span @click="msgHandler(programIndex, 'delete')" style="float: right; cursor: pointer;">&nbsp; Delete</span>
+          <a :href="`/episodes/${episode.id}/edit`" style="float: right; cursor: pointer;">Edit</a>
 
-          <span v-if="episode.toggleOperation" style="float: right;">
-            <span @click="confirm(programIndex, episodeIndex, episode)" :class="colorClass">confirm</span> | <span @click="msgHandler(programIndex, episodeIndex, 'cancel', episode)">cancel</span> - &nbsp;
+          <span v-if="msgHandlerArray[programIndex]" style="float: right;">
+            <span @click="confirm(programIndex, episodeIndex, episode)" :class="colorClass">confirm</span> | <span @click="msgHandler(programIndex, 'cancel')">cancel</span> - &nbsp;
           </span> 
         </li>
       </ul>
@@ -26,8 +26,6 @@
 </template>
 
 <script>
-  import { eventBus } from '../eventBus';
-
   export default {
     props: [
       'programsProp',
@@ -36,56 +34,36 @@
     data() {
       return {
         programs: this.programsProp,
+        msgHandlerArray: Array(this.programsProp.length).fill(false),
         operationMethod: '',
         colorClass: '',
         lastOperationClicked: ''
       }
     },
-    created() {
-    },
-    mounted() {
-      eventBus.$on('updateEpisodeList', (res) => {
-        if (this.lastOperationClicked == 'put') {
-          this.programs = res.data
-          this.$refs.player.forEach(audio => audio.load())
-          return 
-        }
-
-        this.programs.forEach(program => {
-          if (program.id == res.data.program_id) {
-            program.episodes.push(res.data)
-          }
-        })
-      });
-    },
     methods: {
-      msgHandler(programIndex, episodeIndex, operationMethod, episode) {
+      msgHandler(programIndex, operationMethod) {
         if (operationMethod == 'cancel') {
-          this.programs[programIndex].episodes[episodeIndex].toggleOperation = false
-          eventBus.$emit('setAddForm', true);
+          this.setMsgHandler(programIndex, false);
           return 
         }
 
-        if (operationMethod != this.lastOperationClicked) {
-          this.operationMethod = operationMethod
-          this.colorClass = operationMethod == 'delete' ? 'text-danger' : 'text-warning'
-          this.lastOperationClicked = operationMethod;
-        }
-
-        if (!episode.toggleOperation) {
-          this.programs[programIndex].episodes[episodeIndex].toggleOperation = !episode.toggleOperation
-        }
+        this.colorClass = 'text-danger';
+        this.lastOperationClicked = operationMethod;
+        this.toggleMsgHandler(programIndex);
       },
-      confirm(programIndex, episodeIndex, episode) {
-        if (this.operationMethod == 'put') {
-          return eventBus.$emit('populateForm', episode);
-        }
+      toggleMsgHandler(i) {
+        this.$set(this.msgHandlerArray, i, !this.msgHandlerArray[i])
+      },
+      setMsgHandler(i, val) {
+        this.$set(this.msgHandlerArray, i, val);
+      },
+      async confirm(programIndex, episodeIndex, episode) {
+        let response = await window.axios.delete(`${this.route}/${episode.id}`);
 
-        window.axios.delete(`${this.route}/${episode.id}`)
-          .then(res => {
-            let index = this.programs[programIndex].episodes.indexOf(episode)
-            this.programs[programIndex].episodes.splice(index, 1)
-          });
+        if (response == 204) {
+          let index = this.programs[programIndex].episodes.indexOf(episode)
+          this.programs[programIndex].episodes.splice(index, 1)
+        }
       }
     },
   }
