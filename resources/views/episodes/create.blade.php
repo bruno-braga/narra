@@ -10,7 +10,13 @@
           </div>
 
           <div class="card-body">
-            <form-component :token="'{{ csrf_token() }}'" :route="'{{ route('episodes.store') }}'"></form-component>
+            <episode-form-component
+              :is-edit="false"
+              :data='@json($programs)'
+              :programs='@json($programs)'
+              :token="'{{ csrf_token() }}'"
+              :route="'{{ route('episodes.store') }}'">
+            </form-component>
           </div>
         </div>
       </div>
