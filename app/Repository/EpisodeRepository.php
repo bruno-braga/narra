@@ -29,10 +29,11 @@ class EpisodeRepository implements EpisodeRepositoryInterface
                 'episodes.title',
                 'episodes.program_id',
                 DB::raw('CONCAT(audios.path, audios.filename) as audio'),
-                'episodes.description',
-                DB::raw("false as toggleOperation")
+                DB::raw('CONCAT(images.path, images.filename) as image'),
+                'episodes.description'
             )
             ->leftJoin('audios', 'episodes.id', '=', 'audios.audiable_id')
+            ->leftJoin('images', 'episodes.id', '=', 'images.imageable_id')
             ->get();
     }
 }
