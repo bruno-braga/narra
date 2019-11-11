@@ -13,11 +13,11 @@
             Your browser does not support the audio element.
           </audio> 
 
-          <span @click="msgHandler(programIndex, 'delete')" style="float: right; cursor: pointer;">&nbsp; Delete</span>
+          <span @click="msgHandler(episodeIndex, 'delete')" style="float: right; cursor: pointer;">&nbsp; Delete</span>
           <a :href="`/episodes/${episode.id}/edit`" style="float: right; cursor: pointer;">Edit</a>
 
-          <span v-if="msgHandlerArray[programIndex]" style="float: right;">
-            <span @click="confirm(programIndex, episodeIndex, episode)" :class="colorClass">confirm</span> | <span @click="msgHandler(programIndex, 'cancel')">cancel</span> - &nbsp;
+          <span v-if="msgHandlerArray[episodeIndex]" style="float: right;">
+            <span @click="confirm(programIndex, episodeIndex, episode)" :class="colorClass">confirm</span> | <span @click="msgHandler(episodeIndex, 'cancel')">cancel</span> - &nbsp;
           </span> 
         </li>
       </ul>
