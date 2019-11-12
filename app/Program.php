@@ -15,93 +15,117 @@ use App\Traits\UploadTrait;
 
 class Program extends Model
 {
-  use UploadTrait;
+    use UploadTrait;
 
-  protected $fillable = ['title', 'user_id', 'description'];
+    /**
+     * Uploaded image.
+     *
+     * @var UploadedFile
+     */
+    public static $file;
 
-  public static $file;
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = ['title', 'user_id', 'description'];
 
-  public static function boot()
-  {
-      parent::boot();
+    /**
+     * Enables us to hook into model event's
+     *
+     * @return void 
+     */
+    public static function boot()
+    {
+        parent::boot();
 
-      static::creating(function($program) {
-          $program->folder = self::getUniqFolderName();
-          $program->slug = Str::slug($program->title, '-');
+        static::creating(function($program) {
+            $program->folder = $program->generateUniqFolderName();
+            $program->slug = Str::slug($program->title, '-');
 
-          Storage::disk(self::$PUBLIC)->makeDirectory($program->folder);
-      });
+            Storage::disk($program->getConstants()->publicDisk)->makeDirectory($program->folder);
+        });
 
-      static::created(function($program) {
-          if (!is_null(self::$file)) {
-              $path = self::createFolderPath($program->folder);
-              $fileName = self::createFileName(self::$file, $program);
+        static::created(function($program) {
+            $program->storeOnFileAndDb(self::$file, 'images', $program);
+        });
 
-              $program->images()->create([
-                  'path' => $path,
-                  'filename' => $fileName,
-              ]);
+        static::saving(function($program) {
+            $program->updateFileAndDb(self::$file, 'images', $program);
+        });
 
-              $folderPath = self::createPublicFolderPath($program->folder);
+        static::deleting(function($program) {
+            $program->deleteFileAndDb($program, 'images');
+        });
+    }
 
-              return self::$file->storeAs($folderPath, $fileName);
-          }
+    /**
+     * A Program has one and only one image
+     *
+     * @return Illuminate\Database\Eloquent\Relations\MorphOne
+     */
+    public function images()
+    {
+        return $this->morphOne(Image::class, 'imageable');
+    }
 
-          $program->images()->create([
-              'path' => '/storage/',
-              'filename' => 'default-podcast.png',
-          ]);
-      });
+    /**
+     * A Program has one or many episodes
+     *
+     * @return Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function episodes()
+    {
+        return $this->hasMany(Episode::class);
+    }
 
-      static::saving(function($program) {
-          $hasAtLeastAImage = $program->images()->get()->count() > 0; 
-          $hasFile = !is_null(self::$file);
-
-          if ($hasFile) {
-              $program->slug = Str::slug($program->title, '-');
-              $path= '/storage/' . $program->folder . '/';
-              $fileName = $program->id . '_' . self::$file->getClientOriginalName();
-
-              if ($hasAtLeastAImage) {
-                  Storage::disk(self::$PUBLIC)->delete($program->folder . '/' . $program->images->filename);
-                  $folderPath = self::createPublicFolderPath($program->folder);
-                  self::$file->storeAs($folderPath, $fileName);
-              }
-
-              $program->images()->update([
-                  'path' => $path,
-                  'filename' => $fileName
-              ]);
-          }
-      });
-
-      static::deleting(function($program) {
-          $program->images()->delete();
-      });
-  }
-
-  public function images()
-  {
-      return $this->morphOne(Image::class, 'imageable');
-  }
-
-  public function episodes()
-  {
-      return $this->hasMany(Episode::class);
-  }
-
+    /**
+     * Accessor to get full file path
+     *
+     * @return string
+     */
     public function getAudioPathAttribute()
     {
         return $this->path . '' . $this->filename;
     }
 
-  private static function getUniqFolderName()
-  {
-      $folderName = NULL; 
-      do {
-        $folderName = uniqid();
-      } while(Storage::exists($folderName));
+    /**
+     * Tells if instance of Program has id or not
+     *
+     * @return boolean 
+     */
+    private function hasId()
+    {
+        if (is_null($this->id)) {
+            return false;
+        }
 
-      return $folderName;
-  }
+        return true;
+    }
+
+    /**
+     * Gets program folder
+     *
+     * @return string
+     */
+    private function getFolder()
+    {
+        return $this->folder;
+    }
+
+    /**
+     * Generates folder name using uniqid()
+     *
+     * @return string
+     */
+    private function generateUniqFolderName()
+    {
+        $folderName = NULL; 
+        do {
+          $folderName = uniqid();
+        } while(Storage::exists($folderName));
+
+        return $folderName;
+    }
 }

@@ -18,7 +18,18 @@ class Episode extends Model
 {
     use UploadTrait;
 
+    /**
+     * Uploaded audio.
+     *
+     * @var UploadedFile
+     */
     public static $file;
+
+    /**
+     * Uploaded image.
+     *
+     * @var UploadedFile
+     */
     public static $cover;
 
     /**
@@ -30,88 +41,28 @@ class Episode extends Model
         'title', 'user_id', 'program_id', 'description'
     ];
 
+    /**
+     * Enables us to hook into model event's
+     *
+     * @return void 
+     */
     public static function boot()
     {
         parent::boot();
 
         static::created(function($episode) {
-            $path = self::createFolderPath($episode->program->folder);
-            $folderPath = self::createPublicFolderPath($episode->program->folder);
-
-            if (!is_null(self::$file)) {
-                $fileName = self::createFileName(self::$file, $episode);
-
-                $episode->audios()->create([
-                    'path' => $path,
-                    'filename' => $fileName,
-                ]);
-
-
-                self::$file->storeAs($folderPath, $fileName);
-            }
-
-            if (!is_null(self::$cover)) {
-                $fileName = self::createFileName(self::$cover, $episode);
-
-                $episode->images()->create([
-                    'path' => $path,
-                    'filename' => $fileName
-                  ]);
-
-                self::$cover->storeAs($folderPath, $fileName);
-            }
+            $episode->storeOnFileAndDb(self::$cover, 'images', $episode);
+            $episode->storeOnFileAndDb(self::$file, 'audios', $episode);
         });
 
         static::saving(function($episode) {
-            $hasAudio = $episode->audios()->get()->count() > 0; 
-            $hasNewAudio= !is_null(self::$file);
-
-            if ($hasNewAudio) {
-                $path= '/storage/' . $episode->program->folder . '/';
-                $fileName = $episode->id . '_' . self::$file->getClientOriginalName();
-
-                if ($hasAudio) {
-                    Storage::disk(self::$PUBLIC)->delete($episode->program->folder . '/' . $episode->audios->first()->filename);
-                    $folderPath = self::createPublicFolderPath($episode->program->folder);
-                    self::$file->storeAs($folderPath, $fileName);
-                }
-
-                $episode->audios()->update([
-                    'path' => $path,
-                    'filename' => $fileName
-                ]);
-            }
-
-            $hasCover= $episode->images()->get()->count() > 0; 
-            $hasNewCover = !is_null(self::$cover);
-
-            if ($hasNewCover) {
-                $path= '/storage/' . $episode->program->folder . '/';
-                $fileName = $episode->id . '_' . self::$cover->getClientOriginalName();
-
-                if ($hasAudio) {
-                    Storage::disk(self::$PUBLIC)->delete($episode->program->folder . '/' . $episode->images->first()->filename);
-                    $folderPath = self::createPublicFolderPath($episode->program->folder);
-                    self::$cover->storeAs($folderPath, $fileName);
-                }
-
-                $episode->images()->update([
-                    'path' => $path,
-                    'filename' => $fileName
-                ]);
-            }
+            $episode->updateFileAndDb(self::$cover, 'images', $episode);
+            $episode->updateFileAndDb(self::$file, 'audios', $episode);
         });
 
         static::deleting(function($episode) {
-            $audioPath = $episode->audios->first()->audio_path;
-            $imagePath = $episode->images->first()->image_path;
-
-
-            $episode->audios()->delete();
-            $episode->images()->delete();
-
-            $episode->destroyFile($audioPath);
-            $episode->destroyFile($imagePath);
+            $episode->deleteFileAndDb($episode, 'images');
+            $episode->deleteFileAndDb($episode, 'audios');
         });
     }
 
@@ -120,28 +71,58 @@ class Episode extends Model
         return $this->belongsTo(User::class);
     }
 
+    /* TO DO: Actually this should be one to one */
+    /**
+     * An Episode has one or many only one audios 
+     *
+     * @return Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function audios()
     {
         return $this->morphMany(Audio::class, 'audiable');
     }
 
+    /**
+     * A Program has one and only one image
+     *
+     * @return Illuminate\Database\Eloquent\Relations\MorphOne
+     */
     public function images()
     {
         return $this->morphOne(Image::class, 'imageable');
     }
 
+    /**
+     * A Program has one and only one image
+     *
+     * @return Illuminate\Database\Eloquent\Relations\MorphOne
+     */
     public function program()
     {
         return $this->belongsTo(Program::class);
     }
 
-    private static function getUniqFolderName()
+    /**
+     * Tells if instance of Episode has id or not
+     *
+     * @return boolean 
+     */
+    private function hasId()
     {
-        $folderName = NULL; 
-        do {
-          $folderName = uniqid();
-        } while(Storage::exists($folderName));
+        if (is_null($this->id)) {
+            return false;
+        }
 
-        return $folderName;
+        return true;
+    }
+
+    /**
+     * Gets program folder
+     *
+     * @return string
+     */
+    private function getFolder()
+    {
+        return $this->program->folder;
     }
 }
