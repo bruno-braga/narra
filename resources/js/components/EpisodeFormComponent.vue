@@ -11,10 +11,10 @@
     </div>
 
     <div class="form-group row">
-      <label for="title" class="col-md-4 col-form-label text-md-right">Program</label>
+        <label for="title" class="col-md-4 col-form-label text-md-right">Program</label>
 
       <div class="col-md-6">
-        <select class="form-control" v-model="episode.programId">
+        <select @change="te" class="form-control" v-model="episode.programId">
           <option disabled value="">Choose a program</option>
           <option v-for="program in programs" :value="program.id">{{ program.title }}</option>
         </select>
@@ -22,7 +22,7 @@
     </div>
 
     <div class="form-group row">
-      <label for="file" class="col-md-4 col-form-label text-md-right">File</label>
+      <label for="file" class="col-md-4 col-form-label text-md-right">Audio</label>
 
       <div class="col-md-6">
         <input ref="audio" name="file" type="file" @change="setFile($event)" />
@@ -30,7 +30,7 @@
     </div>
 
     <div class="form-group row">
-      <label for="file" class="col-md-4 col-form-label text-md-right">File</label>
+      <label for="cover" class="col-md-4 col-form-label text-md-right">Cover</label>
 
       <div class="col-md-6">
         <input ref="cover" name="cover" type="file" @change="setCover($event)" />
@@ -51,6 +51,10 @@
           Submit
         </button>
       </div>
+    </div>
+
+    <div id="error-msg" v-if="$v.episode.programId.$invalid && submitted">
+      Escolha um programa!
     </div>
   </form>
 </template>
@@ -76,9 +80,14 @@
           cover: null,
           description: null
         },
-        formTitle: 'add',
+        submitted: false,
         instanceRoute: this.route,
         form: new FormData()
+      }
+    },
+    validations: {
+      episode: {
+        programId: { required },
       }
     },
     created() {
@@ -93,20 +102,28 @@
         this.form.append('_method', 'PUT');
       }
     },
-    validations: {
-      title: { required },
-      file: { required }
-    },
     methods: {
+      te() {
+        if (this.episode.programId != '') {
+          this.submitted = false;
+        }
+      },
       setFile(event) {
         this.episode.file = event.target.files[0]
-        event.target.files.pop();
+        event.target.files = null;
       },
       setCover(event) {
         this.episode.cover = event.target.files[0]
-        event.target.files.pop();
+        event.target.files = null;
       },
       async submit() {
+        this.submitted = true;
+
+        if (this.$v.episode.programId.$invalid) {
+            console.log('invalid')
+            return
+        }
+
         this.form.append('_token', this.token);
         this.form.append('title', this.episode.title);
         this.form.append('program_id', this.episode.programId);
