@@ -5,7 +5,8 @@
       <!-- <img :src="episode.image" class="img-fluid" style="width: 100px;" alt="Responsive image"> -->
 
       <ul class="list-group" v-if="program.episodes.length > 0">
-        <li v-for="(episode, episodeIndex) in program.episodes" class="list-group-item">
+      <!-- <ul class="list-group" > -->
+        <li v-for-object="(episode, episodeIndex) in program.episodes" class="list-group-item">
           {{ episode.title }}
 
           <audio ref="player" controls>
@@ -17,7 +18,7 @@
           <a :href="`/episodes/${episode.id}/edit`" style="float: right; cursor: pointer;">Edit</a>
 
           <span v-if="msgHandlerArray[episodeIndex]" style="float: right;">
-            <span @click="confirm(programIndex, episodeIndex, episode)" :class="colorClass">confirm</span> | <span @click="msgHandler(episodeIndex, 'cancel')">cancel</span> - &nbsp;
+            <span @click="confirm(programIndex, episodeIndex, episode)" class="text-danger">confirm</span> | <span @click="msgHandler(episodeIndex, 'cancel')">cancel</span> - &nbsp;
           </span> 
         </li>
       </ul>
@@ -35,10 +36,10 @@
       return {
         programs: this.programsProp,
         msgHandlerArray: Array(this.programsProp.length).fill(false),
-        operationMethod: '',
-        colorClass: '',
-        lastOperationClicked: ''
       }
+    },
+    created() {
+      console.log(this.programsProp)
     },
     methods: {
       msgHandler(programIndex, operationMethod) {
@@ -47,8 +48,6 @@
           return 
         }
 
-        this.colorClass = 'text-danger';
-        this.lastOperationClicked = operationMethod;
         this.toggleMsgHandler(programIndex);
       },
       toggleMsgHandler(i) {

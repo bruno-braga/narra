@@ -53,9 +53,9 @@
       </div>
     </div>
 
-    <div id="error-msg" v-if="$v.episode.programId.$invalid && submitted">
-      Escolha um programa!
-    </div>
+    <!-- <div id="error-msg" v-if="$v.episode.programId.$invalid && submitted"> -->
+      <!-- Escolha um programa! -->
+    <!-- </div> -->
   </form>
 </template>
 
@@ -87,7 +87,7 @@
     },
     validations: {
       episode: {
-        programId: { required },
+        // programId: { required },
       }
     },
     created() {
@@ -119,10 +119,10 @@
       async submit() {
         this.submitted = true;
 
-        if (this.$v.episode.programId.$invalid) {
-            console.log('invalid')
-            return
-        }
+        // if (this.$v.episode.programId.$invalid) {
+       
+            // return
+        //}
 
         this.form.append('_token', this.token);
         this.form.append('title', this.episode.title);

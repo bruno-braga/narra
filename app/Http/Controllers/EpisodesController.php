@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
+
+use App\Http\Requests\EpisodeRequest;
 use App\Repository\EpisodeRepositoryInterface;
 use App\Repository\ProgramRepositoryInterface;
 
@@ -80,7 +83,7 @@ class EpisodesController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(EpisodeRequest $request)
     {
         Episode::$file = $request->file('file');
         Episode::$cover = $request->file('cover');

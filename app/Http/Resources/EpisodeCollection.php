@@ -15,13 +15,21 @@ class EpisodeCollection extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        $episode = [
             'id' => $this->id,
-            'program_id' => $this->program_id,
+            'program_id' => (int) $this->program_id,
             'title' => $this->title,
-            'audio' => $this->audios->first()->audio_path,
-            'description' => $this->description,
-            'toggleOperation' => false
+            'description' => $this->description
         ];
+
+        if ($this->audios->first()->isNotEmpty()) {
+            $episode['audio'] = $this->audios->audio_path;
+        }
+
+        if ($this->images->isNotEmpty()) {
+            $episode['image'] = $this->images->image_path;
+        }
+       
+        return $episode;
     }
 }
