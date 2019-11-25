@@ -1,29 +1,32 @@
 <template>
-  <div>
+  <div style="clear: right">
+    <br>
+
     <ul class="list-group">
       <li v-for="(program, i) in programsFromProps" class="list-group-item">
         <img :src="program.image" class="img-fluid img-thumbnail" alt="Responsive image" style="width: 100px;">
         {{ program.title }}
 
-        <span @click="msgHandler(i, 'delete')" style="float: right; cursor: pointer;">&nbsp; Delete</span>
-        <a :href="`/programs/${program.id}/edit`" style="float: right; cursor: pointer;">Edit</a>
+        <spinner :show="loadingHandler[i]"></spinner>
 
-        <span v-if="msgHandlerArray[i]" style="float: right;">
-          <span @click="confirm(program)" :class="colorClass">confirm</span> | <span @click="msgHandler(i, 'cancel')">cancel</span> - &nbsp;
-        </span> 
+        <div class="float-right">
+          <a :href="`/programs/${program.id}/edit`" class="delete-span" style="cursor: pointer;">Edit</a> <b>|</b>
+          <span @click="msgHandler(i, 'delete')" class="delete-span" style="cursor: pointer;">Delete</span>
+
+          <span v-if="msgHandlerArray[i]" class="float-left">
+            <span @click="confirm(i, program)" class="text-danger">confirm</span> | <span @click="msgHandler(i, 'cancel')">cancel</span> - &nbsp;
+          </span> 
+        </div>
       </li>
     </ul>
 
     <div v-if="programsFromProps.length == 0">
       Click Add to start your podcast!
     </div>
-
   </div>
 </template>
 
 <script>
-  import { eventBus } from '../eventBus';
-
   export default {
     props: [
       'route',
@@ -33,20 +36,9 @@
       return {
         programsFromProps: this.programs,
         msgHandlerArray: Array(this.programs.length).fill(false),
+        loadingHandler: Array(this.programs.length).fill(false),
         operationMethod: '',
-        colorClass: '',
-        lastOperationClicked: ''
       }
-    },
-    mounted() {
-      eventBus.$on('updateEpisodeList', (res) => {
-        if (this.lastOperationClicked == 'put') {
-          this.programsFromProps = res.data
-          return 
-        }
-
-        this.programs.push(res.data)
-      });
     },
     methods: {
       msgHandler(i, operationMethod) {
@@ -55,8 +47,6 @@
           return 
         }
 
-        this.colorClass = 'text-danger';
-        this.lastOperationClicked = operationMethod;
         this.toggleMsgHandler(i);
       },
       toggleMsgHandler(i) {
@@ -65,13 +55,32 @@
       setMsgHandler(i, val) {
         this.$set(this.msgHandlerArray, i, val);
       },
-      confirm(program) {
-        window.axios.delete(`${this.route}/${program.id}`)
-          .then(res => {
-            let index = this.programs.indexOf(program)
-            this.programs.splice(index, 1)
-          });
+      async confirm(i, program) {
+        let { data } = await window.axios.delete(`${this.route}/${program.id}`);
+
+        this.$set(this.loadingHandler, i, !this.loadingHandler[i]);
+
+        if (data == 204) {
+          let index = this.programs.indexOf(program)
+          this.$set(this.loadingHandler, i, !this.loadingHandler[i]);
+          this.programs.splice(index, 1)
+
+          this.loadingHandler.splice(i, 1);
+          this.msgHandlerArray.splice(i, 1);
+        }
       }
     }
   }
 </script>
+
+<style>
+.delete-span{
+  color: #3490dc;
+  text-decoration: none;
+  background-color: transparent;
+}
+
+.delete-span:hover {
+  text-decoration: underline;
+}
+</style>

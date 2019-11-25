@@ -1,25 +1,43 @@
 <template>
-  <div class="card">
-    <div v-for="(program, programIndex) in programs" class="card-body">
-      <h5 class="card-title">{{ program.title }}</h5>
-      <!-- <img :src="episode.image" class="img-fluid" style="width: 100px;" alt="Responsive image"> -->
+  <div style="clear: right">
+    <div v-for="(program, programIndex) in programs">
+      <br>
+
+      <h5>{{ program.title }}</h5>
+
+      <br>
 
       <ul class="list-group" v-if="program.episodes.length > 0">
-      <!-- <ul class="list-group" > -->
-        <li v-for-object="(episode, episodeIndex) in program.episodes" class="list-group-item">
+        <li v-for="(episode, episodeIndex) in program.episodes" class="list-group-item">
           {{ episode.title }}
 
-          <audio ref="player" controls>
+          <span class="badge badge-secondary" style="margin: 5px 0 0 5px">{{ episode.is_draft ? "Draft" : "" }}</span>
+
+          <img v-if="episode.image" :src="episode.image" class="img-fluid" style="width: 100px;" alt="Responsive image">
+
+          <audio ref="player" controls v-if="!episode.is_draft">
             <source :src="episode.audio" type="audio/mpeg">
             Your browser does not support the audio element.
           </audio> 
 
-          <span @click="msgHandler(episodeIndex, 'delete')" style="float: right; cursor: pointer;">&nbsp; Delete</span>
-          <a :href="`/episodes/${episode.id}/edit`" style="float: right; cursor: pointer;">Edit</a>
 
-          <span v-if="msgHandlerArray[episodeIndex]" style="float: right;">
-            <span @click="confirm(programIndex, episodeIndex, episode)" class="text-danger">confirm</span> | <span @click="msgHandler(episodeIndex, 'cancel')">cancel</span> - &nbsp;
-          </span> 
+          <div class="float-right">
+            <a :href="`/episodes/${episode.id}/edit`" style="cursor: pointer;">Edit</a> <b>|</b>
+            <span @click="msgHandler(episodeIndex, 'delete')" class="delete-span" style="cursor: pointer;">Delete</span>
+
+            <span v-if="msgHandlerArray[episodeIndex]" class="float-left">
+              <span
+                @click="confirm(programIndex, episodeIndex, episode)"
+                class="text-danger">
+                  confirm
+              </span> |
+
+              <span
+                @click="msgHandler(episodeIndex, 'cancel')">
+                  cancel
+              </span> - &nbsp;
+            </span> 
+          </div>
         </li>
       </ul>
     </div>
@@ -37,9 +55,6 @@
         programs: this.programsProp,
         msgHandlerArray: Array(this.programsProp.length).fill(false),
       }
-    },
-    created() {
-      console.log(this.programsProp)
     },
     methods: {
       msgHandler(programIndex, operationMethod) {
@@ -67,3 +82,15 @@
     },
   }
 </script>
+
+<style>
+.delete-span{
+  color: #3490dc;
+  text-decoration: none;
+  background-color: transparent;
+}
+
+.delete-span:hover {
+  text-decoration: underline;
+}
+</style>
