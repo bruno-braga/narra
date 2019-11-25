@@ -145,7 +145,7 @@ trait UploadTrait
         }
 
         $typeProperty = Str::singular($type) . '_path';
-        $path = $this->{$type}->first()->{$typeProperty};
+        $path = $this->{$type}->{$typeProperty};
 
         $this->{$type}()->delete();
         $this->destroyFile($path);
