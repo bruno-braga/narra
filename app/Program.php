@@ -56,7 +56,7 @@ class Program extends Model
         });
 
         static::deleting(function($program) {
-            $program->deleteFileAndDb($program, 'images');
+            $program->deleteFileAndDb('images');
         });
     }
 
