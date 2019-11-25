@@ -16,17 +16,18 @@ class EpisodeCollection extends JsonResource
     public function toArray($request)
     {
         $episode = [
-            'id' => $this->id,
+            'id' => (int) $this->id,
             'program_id' => (int) $this->program_id,
             'title' => $this->title,
+            'is_draft' => (int) $this->is_draft,
             'description' => $this->description
         ];
 
-        if ($this->audios->first()->isNotEmpty()) {
+        if ($this->audios()->exists()) {
             $episode['audio'] = $this->audios->audio_path;
         }
 
-        if ($this->images->isNotEmpty()) {
+        if ($this->images()->exists()) {
             $episode['image'] = $this->images->image_path;
         }
        
