@@ -27,6 +27,7 @@ class EpisodeRepository implements EpisodeRepositoryInterface
             ->select(
                 'episodes.id',
                 'episodes.title',
+                'episodes.is_draft',
                 'episodes.program_id',
                 DB::raw('CONCAT(audios.path, audios.filename) as audio'),
                 DB::raw('CONCAT(images.path, images.filename) as image'),
@@ -34,6 +35,8 @@ class EpisodeRepository implements EpisodeRepositoryInterface
             )
             ->leftJoin('audios', 'episodes.id', '=', 'audios.audiable_id')
             ->leftJoin('images', 'episodes.id', '=', 'images.imageable_id')
+            ->where('images.imageable_type', '=', 'App\Episode')
+            ->orWhere('episodes.is_draft', '=', true)
             ->get();
     }
 }
