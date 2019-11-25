@@ -3,20 +3,15 @@
 @section('content')
   <div class="container">
     <div class="row justify-content-center">
-      <div class="col-md-8">
-        <div class="card">
-          <div class="card-header">
-            Episodes <a href="{{ url('/episodes/create') }}" class="btn btn-primary float-right">Add</a>
-          </div>
-
-          <div class="card-body">
-            <episode-list-component 
-              :programs-prop='@json($programs)'
-              :route="'{{ url('episodes') }}'">
-            </list-component>
-          </div>
+      <div class="col-md-12">
+        <div>
+          <a href="{{ url('/episodes/create') }}" class="btn btn-primary float-right">Add Episode</a>
         </div>
 
+        <episode-list-component 
+          :programs-prop='@json($programs)'
+          :route="'{{ url('episodes') }}'">
+        </list-component>
       </div>
     </div>
   </div>
