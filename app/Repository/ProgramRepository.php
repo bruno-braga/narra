@@ -4,6 +4,10 @@ namespace App\Repository;
 
 use Illuminate\Support\Facades\DB;
 
+use App\Http\Resources\EpisodeCollection;
+
+use App\Program;
+
 class ProgramRepository implements ProgramRepositoryInterface
 {
     /**
@@ -55,6 +59,7 @@ class ProgramRepository implements ProgramRepositoryInterface
                 DB::raw('CONCAT(images.path, images.filename) as image')
             )
             ->leftJoin('images', 'programs.id', '=', 'images.imageable_id')
+            ->where('images.imageable_type', '=', 'App\Program')
             ->where('user_id', $userId)
             ->get();
     }
