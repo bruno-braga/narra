@@ -55,6 +55,22 @@ class Episode extends Model
             $episode->storeOnFileAndDb(self::$file, 'audios', $episode);
         });
 
+        static::creating(function($episode) {
+            if ($episode->title === 'null' || $episode->title === 'undefined') {
+                $episode->title = NULL;
+            }
+
+            if ($episode->description === 'null' || $episode->description  === 'undefined') {
+                $episode->description = NULL;
+            }
+
+            $episode->is_draft = $episode->setIsDraft(self::$file);
+        });
+
+        static::creating(function($episode) {
+            $episode->is_draft = $episode->setIsDraft(self::$file);
+        });
+
         static::saving(function($episode) {
             $episode->updateFileAndDb(self::$cover, 'images', $episode);
             $episode->updateFileAndDb(self::$file, 'audios', $episode);
@@ -124,5 +140,20 @@ class Episode extends Model
     private function getFolder()
     {
         return $this->program->folder;
+    }
+
+    private function setIsDraft($audio)
+    {
+        $isDraft = (
+            is_null($this->title) ||
+            is_null($this->description) ||
+            is_null($audio)
+        );
+
+        if ($isDraft) {
+            return true;
+        }
+
+        return false;
     }
 }

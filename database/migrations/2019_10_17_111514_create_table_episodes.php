@@ -17,6 +17,7 @@ class CreateTableEpisodes extends Migration
             $table->bigIncrements('id');
             $table->string('title')->nullable()->default(NULL);
             $table->text('description')->nullable()->default(NULL);
+            $table->boolean('is_draft')->default(true);
             $table->timestamps();
         });
     }
