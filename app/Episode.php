@@ -95,7 +95,7 @@ class Episode extends Model
      */
     public function audios()
     {
-        return $this->morphMany(Audio::class, 'audiable');
+        return $this->morphOne(Audio::class, 'audiable');
     }
 
     /**
