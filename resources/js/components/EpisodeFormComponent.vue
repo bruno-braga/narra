@@ -14,7 +14,7 @@
         <label for="title" class="col-md-4 col-form-label text-md-right">Program</label>
 
       <div class="col-md-6">
-        <select @change="te" class="form-control" v-model="episode.programId">
+        <select @change="clearSubmitted" class="form-control" v-model="episode.programId">
           <option disabled value="">Choose a program</option>
           <option v-for="program in programs" :value="program.id">{{ program.title }}</option>
         </select>
@@ -53,9 +53,9 @@
       </div>
     </div>
 
-    <!-- <div id="error-msg" v-if="$v.episode.programId.$invalid && submitted"> -->
-      <!-- Escolha um programa! -->
-    <!-- </div> -->
+    <div id="error-msg" v-if="$v.episode.programId.$invalid && submitted">
+      Escolha um programa!
+    </div>
   </form>
 </template>
 
@@ -87,7 +87,7 @@
     },
     validations: {
       episode: {
-        // programId: { required },
+        programId: { required }
       }
     },
     created() {
@@ -103,7 +103,7 @@
       }
     },
     methods: {
-      te() {
+      clearSubmitted() {
         if (this.episode.programId != '') {
           this.submitted = false;
         }
@@ -119,10 +119,10 @@
       async submit() {
         this.submitted = true;
 
-        // if (this.$v.episode.programId.$invalid) {
-       
-            // return
-        //}
+        if (this.$v.episode.programId.$invalid) {
+          return
+        }
+        
 
         this.form.append('_token', this.token);
         this.form.append('title', this.episode.title);
@@ -145,6 +145,8 @@
           for(let key in this.episode) {
             this.episode[key] = null
           }
+
+          this.submitted = false;
         }
       }
     }

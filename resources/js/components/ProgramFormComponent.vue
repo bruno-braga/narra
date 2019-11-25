@@ -39,6 +39,10 @@
         </div>
       </form>
     </div>
+
+    <div id="error-msg" v-if="$v.program.title.$invalid && submitted">
+      Preencha o campo de titulo.
+    </div>
   </div>
 </template>
 
@@ -71,19 +75,27 @@
           file: null,
           description: null
         },
+        submitted: false,
         instanceRoute: this.route, 
         form: new FormData()
       }
     },
     validations: {
-      title: { required },
-      file: { required }
+      program: {
+        title: { required }
+      }
     },
     methods: {
       setFile(event) {
         this.program.file = event.target.files[0]
       },
       async submit() {
+        this.submitted = true;
+
+        if (this.$v.program.title.$invalid) {
+          return
+        }
+
         this.form.append('_token', this.token);
         this.form.append('title', this.program.title);
         this.form.append('file', this.program.file);
@@ -94,7 +106,15 @@
         if (response) {
           this.$refs.file.value = '';
         }
-      }
+      },
+    },
+    watch: {
+      program: {
+        handler(val, oldVal) {
+          this.submitted = false;
+        },
+        deep: true
+      },
     }
   }
 </script>
