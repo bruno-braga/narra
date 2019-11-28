@@ -20,6 +20,17 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::get('/fd/{id}', 'HomeController@fd');
 
+
+
 Route::resource('/episodes', 'EpisodesController');
 Route::resource('/programs', 'ProgramsController');
-Route::resource('/settings', 'SettingsController');
+
+Route::get('/programs/{program}/settings', 'ProgramsController@settings');
+
+Route::post(
+  '/programs/{program}/settings',
+  'ProgramsController@storeSettings'
+)
+->name('storeSettings');
+
+// Route::resource('/settings', 'SettingsController');

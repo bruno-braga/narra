@@ -3,22 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
+use App\Repository\LanguageRepositoryInterface;
+
 use App\Http\Resources\ProgramCollection;
-use App\Repository\ProgramRepositoryInterface;
 
 use App\Program;
 
 class ProgramsController extends Controller
 {
     private $program;
+    private $language;
 
-    public function __construct(ProgramRepositoryInterface $program)
+    public function __construct(LanguageRepositoryInterface $language)
     {
-        $this->program = $program;
-
         $this->middleware('auth');
+        $this->language = $language;
     }
 
     /**
@@ -146,5 +148,22 @@ class ProgramsController extends Controller
         }
         
         return response()->json(204);
+    }
+
+    public function settings($id)
+    {
+        return view(
+            'settings.index',
+            [
+                'languages' => $this->language->getAll()
+            ]
+        );
+    }
+
+    public function storeSettings(Request $request, Program $program)
+    {
+        return $program
+            ->settings()
+            ->create($request->input('settings'));
     }
 }
