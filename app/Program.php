@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
 use App\Image;
+use App\Setting;
 use App\Episode;
 
 use App\Traits\UploadTrait;
@@ -68,6 +69,16 @@ class Program extends Model
     public function images()
     {
         return $this->morphOne(Image::class, 'imageable');
+    }
+
+    /**
+     * A Program has one Setting
+     *
+     * @return Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function settings()
+    {
+        return $this->hasOne(Setting::class);
     }
 
     /**
