@@ -20,7 +20,7 @@ class EpisodeRepository implements EpisodeRepositoryInterface
      *
      * @var Illuminate\Support\Collection
      */
-    public function getAll()
+    public function getAll($includeDraft = false)
     {
         return DB::table('episodes')
             ->distinct()
@@ -36,7 +36,7 @@ class EpisodeRepository implements EpisodeRepositoryInterface
             ->leftJoin('audios', 'episodes.id', '=', 'audios.audiable_id')
             ->leftJoin('images', 'episodes.id', '=', 'images.imageable_id')
             ->where('images.imageable_type', '=', 'App\Episode')
-            ->orWhere('episodes.is_draft', '=', true)
+            ->orWhere('episodes.is_draft', '=', $includeDraft)
             ->get();
     }
 }
