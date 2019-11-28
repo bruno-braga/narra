@@ -28,10 +28,21 @@ class ProgramsController extends Controller
      */
     public function index()
     {
+
+        $programs = Program::select(['programs.id', 'programs.title'])
+            ->where('programs.user_id', Auth::id())
+            ->with([
+                'images' => function($query) {
+                    $query->select('imageable_id', DB::raw('CONCAT(images.path, images.filename) as path'));
+                },
+            ])
+            ->get()
+            ->toArray();
+
         return view(
             'programs.index',
             [
-                'programs' => $this->program->getAll()
+                'programs' => $programs
             ]
         );
     }

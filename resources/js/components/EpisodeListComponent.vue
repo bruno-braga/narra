@@ -13,10 +13,10 @@
 
           <span class="badge badge-secondary" style="margin: 5px 0 0 5px">{{ episode.is_draft ? "Draft" : "" }}</span>
 
-          <img v-if="episode.image" :src="episode.image" class="img-fluid" style="width: 100px;" alt="Responsive image">
+          <img v-if="episode.images" :src="episode.images.path" class="img-fluid" style="width: 100px;" alt="Responsive image">
 
           <audio ref="player" controls v-if="!episode.is_draft">
-            <source :src="episode.audio" type="audio/mpeg">
+            <source :src="episode.audios.path" type="audio/mpeg">
             Your browser does not support the audio element.
           </audio> 
 

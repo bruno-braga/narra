@@ -4,7 +4,7 @@
 
     <ul class="list-group">
       <li v-for="(program, i) in programsFromProps" class="list-group-item">
-        <img :src="program.image" class="img-fluid img-thumbnail" alt="Responsive image" style="width: 100px;">
+        <img v-if="program.images" :src="program.images.path" class="img-fluid img-thumbnail" alt="Responsive image" style="width: 100px;">
         {{ program.title }}
 
         <spinner :show="loadingHandler[i]"></spinner>

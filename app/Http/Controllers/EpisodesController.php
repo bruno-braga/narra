@@ -18,6 +18,8 @@ use App\Program;
 
 use App\Http\Resources\EpisodeCollection;
 
+use Illuminate\Support\Facades\DB;
+
 class EpisodesController extends Controller
 {
     private $episode;
@@ -38,13 +40,23 @@ class EpisodesController extends Controller
      */
     public function index()
     {
-        $episodes = $this
-            ->episode
-            ->getAll();
-
-        $programs = $this
-            ->program
-            ->getProgramsWithEpisodes($episodes, Auth::id());
+        $programs = Program::select(['programs.id', 'programs.title'])
+            ->where('programs.user_id', Auth::id())
+            ->with([
+                'episodes' => function($query) {
+                  $query->select('id', 'program_id', 'title', 'is_draft', 'description')
+                      ->with([
+                          'images' => function($query) {
+                              $query->select('imageable_id', DB::raw('CONCAT(images.path, images.filename) as path'));
+                          },
+                          'audios' => function($query) {
+                              $query->select('audiable_id', DB::raw('CONCAT(audios.path, audios.filename) as path'));
+                          }
+                      ]);
+                }
+            ])
+            ->get()
+            ->toArray();
 
         return view(
             'episodes.index',
@@ -61,18 +73,10 @@ class EpisodesController extends Controller
      */
     public function create()
     {
-        $episodes = $this
-            ->episode
-            ->getAll();
-
-        $programs = $this
-            ->program
-            ->getProgramsWithEpisodes($episodes, Auth::id());
-
         return view(
             'episodes.create',
             [
-                'programs' => $programs
+                'programs' => Program::all()
             ]
         );
     }
@@ -151,15 +155,7 @@ class EpisodesController extends Controller
 
         $episode->update($data);
 
-        $episodes = $this
-            ->episode
-            ->getAll();
-
-        $programs = $this
-            ->program
-            ->getProgramsWithEpisodes($episodes, Auth::id());
-
-        return response()->json($programs);
+        return response()->json(200);
     }
 
     /**
