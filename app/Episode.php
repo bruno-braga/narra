@@ -67,7 +67,7 @@ class Episode extends Model
             $episode->is_draft = $episode->setIsDraft(self::$file);
         });
 
-        static::creating(function($episode) {
+        static::updating(function($episode) {
             $episode->is_draft = $episode->setIsDraft(self::$file);
         });
 
