@@ -42,15 +42,32 @@ class HomeController extends Controller
 
     public function fd($id)
     {
-        $episodes = $this
-            ->episode
-            ->getAll();
+        $program = Program::select(['programs.id', 'programs.title', 'programs.description'])
+            ->where('programs.user_id', Auth::id())
+            ->where('programs.id', $id)
+            ->with([
+                'episodes' => function($query) {
+                  $query->select('id', 'program_id', 'title', 'description')
+                      ->where('is_draft', false)
+                      ->with([
+                          'images' => function($query) {
+                              $query->select('imageable_id', DB::raw('CONCAT(images.path, images.filename) as path'));
+                          },
+                          'audios' => function($query) {
+                              $query->select('audiable_id', DB::raw('CONCAT(audios.path, audios.filename) as path'));
+                          }
+                      ]);
+                },
+                'settings' => function($query) {
+                    $query->select('id', 'program_id');
+                }
+            ])
+            ->get()
+            ->first();
 
-        $programs = $this
-            ->program
-            ->getProgramByIdWithEpisodes($id, $episodes, Auth::id());
+        dd($program->toArray());
 
-        $dom = RssBuilder::build($programs, $episodes);
+        $dom = RssBuilder::build($program);
 
         Storage::disk('public')
             ->put(substr($programs->image, 8, 15) . '/rss.txt', $dom->saveXML());
