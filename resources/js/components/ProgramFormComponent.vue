@@ -133,7 +133,6 @@
       updateSubcategoryList(option) {
         this.childCategoryOptions = this.childCategories
           .filter(category => {
-            console.log(category.parent_id == option.id)
             return category.parent_id == this.program.parentCategory.id
           })
       },
@@ -147,9 +146,14 @@
           return
         }
 
-        let a = this.program.childCategory.map(category => (category.id));
+        let childCategories;
+        if (this.program.childCategory) {
+          this.form.delte('category_id[]');
 
-        a.forEach(id => this.form.append('category_id[]', id));
+          childCategories = this.program.childCategory.map(category => (category.id));
+          childCategories.forEach(id => this.form.append('category_id[]', id));
+        }
+
 
         this.form.append('_token', this.token);
         this.form.append('title', this.program.title);
@@ -162,6 +166,7 @@
 
         if (response) {
           this.$refs.file.value = '';
+          window.location.replace('/programs');
         }
       },
     },
