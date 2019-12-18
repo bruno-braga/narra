@@ -38,7 +38,7 @@ class Episode extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'user_id', 'program_id', 'description'
+        'title', 'user_id', 'program_id', 'duration', 'description'
     ];
 
     /**

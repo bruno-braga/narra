@@ -4,9 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-use Illuminate\Support\Facades\DB;
-
-class CreateLanguagesTable extends Migration
+class CreateCategoriesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,14 +13,12 @@ class CreateLanguagesTable extends Migration
      */
     public function up()
     {
-        Schema::create('languages', function (Blueprint $table) {
+        Schema::create('categories', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('iso_639_2', 5);
-            $table->string('country');
+            $table->string('name');
+            $table->unsignedBigInteger('parent_id')->nullable();
             $table->timestamps();
         });
-
-        // DB::unprepared(file_get_contents('storage/db.sql'));
     }
 
     /**
@@ -32,6 +28,6 @@ class CreateLanguagesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('languages');
+        Schema::dropIfExists('categories');
     }
 }

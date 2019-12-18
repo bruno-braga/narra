@@ -95,8 +95,12 @@ class EpisodesController extends Controller
         $data = $request->only([
             'title',
             'program_id',
-            'description'
+            'description',
+            'type',
+            'size'
         ]);
+
+        $data['duration'] = (int) $request->input('duration');
 
         $episode = new Episode($data);
         $episode->save();
@@ -148,10 +152,14 @@ class EpisodesController extends Controller
         $episode = Episode::find($id);
 
         $data = $request->only([
-          'title',
-          'program_id',
-          'description'
+            'title',
+            'program_id',
+            'description',
+            'type',
+            'size'
         ]);
+
+        $data['duration'] = (int) $request->input('duration');
 
         $episode->update($data);
 

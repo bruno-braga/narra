@@ -4,6 +4,8 @@
   <div class="container">
     <div class="row justify-content-center">
       <program-form-component 
+        :parent-categories='@json($parentCategories)'
+        :child-categories='@json($childCategories)'
         :is-edit="false"
         :data="null"
         :token="'{{ csrf_token() }}'" 

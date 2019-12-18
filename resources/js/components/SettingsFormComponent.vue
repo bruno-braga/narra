@@ -21,12 +21,19 @@
       </div>
     </div>
 
-
     <div class="form-group row">
       <label for="copyright" class="col-md-4 col-form-label text-md-right">Copyright</label>
 
       <div class="col-md-6">
         <input v-model="setting.copyright" id="copyright" type="text" class="form-control" name="copyright" autocomplete="copyright" autofocus>
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label for="explicit" class="col-md-4 col-form-label text-md-right">Explicit</label>
+
+      <div class="col-md-6">
+        <input v-model="setting.explicit" id="copyright" type="checkbox" name="explicit" autocomplete="explicit" autofocus>
       </div>
     </div>
 

@@ -25,6 +25,7 @@ class CreateSettingsTable extends Migration
                 ->nullable();
 
             $table->string('copyright');
+            $table->boolean('explicit');
             $table->string('subtitle');
             $table->string('author');
             $table->string('owner_name');

@@ -13,7 +13,16 @@ class Setting extends Model
      *
      * @var array
      */
-    protected $fillable = ['language_id', 'copyright', 'subtitle', 'author', 'owner_name'];
+    protected $fillable = [
+        'language_id',
+        'copyright',
+        'explicit',
+        'subtitle',
+        'author',
+        'owner_name'
+    ];
+
+    protected $appends = ['explicit_string'];
 
     /**
      * A Setting has belongs to a Program
@@ -23,5 +32,10 @@ class Setting extends Model
     public function setting()
     {
         return $this->belongsTo(Program::class);
+    }
+
+    public function getExplicitStringAttribute()
+    {
+        return $this->explicit ? 'Yes' : 'No';
     }
 }

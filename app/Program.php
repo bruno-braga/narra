@@ -7,9 +7,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
+use App\User;
 use App\Image;
 use App\Setting;
 use App\Episode;
+use App\Category;
 
 use App\Traits\UploadTrait;
 
@@ -48,6 +50,10 @@ class Program extends Model
             Storage::disk($program->getConstants()->publicDisk)->makeDirectory($program->folder);
         });
 
+        static::updating(function($program) {
+            $program->slug = Str::slug($program->title, '-');
+        });
+
         static::created(function($program) {
             $program->storeOnFileAndDb(self::$file, 'images', $program);
         });
@@ -59,6 +65,11 @@ class Program extends Model
         static::deleting(function($program) {
             $program->deleteFileAndDb('images');
         });
+    }
+
+    public function users()
+    {
+        return $this->belongsTo(User::class);
     }
 
     /**
@@ -89,6 +100,11 @@ class Program extends Model
     public function episodes()
     {
         return $this->hasMany(Episode::class);
+    }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'category_program');
     }
 
     /**

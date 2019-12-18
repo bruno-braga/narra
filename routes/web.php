@@ -21,7 +21,6 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/fd/{id}', 'HomeController@fd');
 
 
-
 Route::resource('/episodes', 'EpisodesController');
 Route::resource('/programs', 'ProgramsController');
 
@@ -32,5 +31,7 @@ Route::post(
   'ProgramsController@storeSettings'
 )
 ->name('storeSettings');
+
+Route::get('/{program}', 'HomeController@program');
 
 // Route::resource('/settings', 'SettingsController');

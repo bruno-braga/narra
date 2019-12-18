@@ -116,6 +116,12 @@
         this.episode.cover = event.target.files[0]
         event.target.files = null;
       },
+      getAudio(blob) {
+        return new Promise((resolve, reject) => {
+          let audio = new Audio(blob);
+          audio.addEventListener('loadedmetadata', () => resolve(audio));
+        });
+      },
       async submit() {
         this.submitted = true;
 
@@ -123,11 +129,18 @@
           return
         }
         
+        let blob = window.URL.createObjectURL(this.episode.file);
+        let audio = await this.getAudio(blob);
 
         this.form.append('_token', this.token);
         this.form.append('title', this.episode.title);
         this.form.append('program_id', this.episode.programId);
         this.form.append('file', this.episode.file);
+
+        this.form.append('duration', audio.duration);
+        this.form.append('type', this.episode.file.type);
+        this.form.append('size', this.episode.file.size);
+
         this.form.append('cover', this.episode.cover);
         this.form.append('description', this.episode.description);
 

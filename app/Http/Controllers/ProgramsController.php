@@ -11,6 +11,7 @@ use App\Repository\LanguageRepositoryInterface;
 use App\Http\Resources\ProgramCollection;
 
 use App\Program;
+use App\Category;
 
 class ProgramsController extends Controller
 {
@@ -30,7 +31,6 @@ class ProgramsController extends Controller
      */
     public function index()
     {
-
         $programs = Program::select(['programs.id', 'programs.title'])
             ->where('programs.user_id', Auth::id())
             ->with([
@@ -56,7 +56,22 @@ class ProgramsController extends Controller
      */
     public function create()
     {
-        return view('programs.create');
+        $parentCategories = Category::where('parent_id', null)
+            ->get()
+            ->toArray();
+
+        $childCategories = Category::where('parent_id', '!=', null)
+            ->get()
+            ->toArray();
+
+
+        return view(
+            'programs.create',
+            [
+                'parentCategories' => $parentCategories,
+                'childCategories' => $childCategories,
+            ]
+        );
     }
 
     /**
@@ -74,6 +89,8 @@ class ProgramsController extends Controller
 
         $program = new Program($data);
         $program->save();
+
+        $program->categories()->attach($request->input('category_id'));
 
         return response()->json(new ProgramCollection($program));
     }
@@ -95,12 +112,22 @@ class ProgramsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Program $program)
     {
+        $parentCategories = Category::where('parent_id', null)
+            ->get()
+            ->toArray();
+
+        $childCategories = Category::where('parent_id', '!=', null)
+            ->get()
+            ->toArray();
+
         return view(
             'programs.edit',
             [ 
-                'program' => Program::find($id)
+                'program' => $program->load('categories'),
+                'parentCategories' => $parentCategories,
+                'childCategories' => $childCategories
             ]
         );
     }
@@ -121,11 +148,14 @@ class ProgramsController extends Controller
           'description'
         ]);
 
+        $categoryId = $request->input('category_id');
+
         if ($request->hasFile('file')) {
           Program::$file = $request->file('file');
         }
 
         $program->update($data);
+        $program->categories()->sync($categoryId);
 
         return response()->json($this->program->getAll());
     }
@@ -150,12 +180,13 @@ class ProgramsController extends Controller
         return response()->json(204);
     }
 
-    public function settings($id)
+    public function settings(int $id)
     {
         return view(
             'settings.index',
             [
-                'languages' => $this->language->getAll()
+                'languages' => $this->language->getAll(),
+                'id' => $id
             ]
         );
     }

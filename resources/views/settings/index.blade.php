@@ -8,7 +8,7 @@
         :is-edit="false"
         :data="null"
         :token="'{{ csrf_token() }}'" 
-        :route="'{{ route('storeSettings', 1) }}'"
+        :route="'{{ route('storeSettings', $id) }}'"
       >
       </setting-form-component>
     </div>

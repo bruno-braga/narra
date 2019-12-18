@@ -4,10 +4,24 @@ namespace App\Rss;
 
 use Carbon\Carbon;
 
+use Illuminate\Support\Facades\Auth;
+
+use Illuminate\Support\Str;
+
 class RssBuilder
 {
-    static function build($programs)
+    static function build($program)
     {
+        $baseUrl = url('/') . '/';
+
+        // next 3 lines
+        // removes / at the end of $baseUrl
+        // so can create proper img path 
+        // by concatanating with images->path
+        $baseUrlExploded = collect(explode('/', $baseUrl));
+        $baseUrlExploded->pop();
+        $baseUrlExploded = $baseUrlExploded->implode('/');
+
         $dom = new \DOMDocument('1.0', 'utf-8');
         $dom->formatOutput = true;
         $root = $dom->createElement('rss');
@@ -32,10 +46,16 @@ class RssBuilder
 
         $root->appendChild($channel);
 
+        // dump($program->episodes->first()->images->path);
+        // dump($program->images->toArray());
+
+        // dump(url('/'));
+
+        // dd($program->toArray());
         $channelTags = [
-            'title' => '<![CDATA[' . '' . $programs->title . '' . ']]>',
-            'description' => '<![CDATA[' . '' . $programs->description . '' . ']]>',
-            'link' => '<![CDATA[' . '' . $programs->title . '' . ']]>'
+            'title' => '<![CDATA[' . '' . $program->title . '' . ']]>',
+            'description' => '<![CDATA[' . '' . $program->description . '' . ']]>',
+            'link' => '<![CDATA[' . '' . $baseUrl . $program->slug . '' . ']]>'
         ];
 
         foreach($channelTags as $tag => $value) {
@@ -49,9 +69,9 @@ class RssBuilder
         $root->appendChild($image);
 
         $imageTags = [
-            'url' => '',
-            'title' => $programs->title,
-            'link' => ''
+            'url' => $baseUrlExploded . $program->images->path,
+            'title' => $program->title,
+            'link' => $baseUrl . $program->slug
         ];
 
         foreach($imageTags as $tag => $value) {
@@ -59,7 +79,7 @@ class RssBuilder
                 $dom->createElement($tag, $value)
             );
         }
-        
+
         $tags = [
             'generator' => 'Narra',
             'lastBuildDate' => Carbon::now()->toRfc7231String(),
@@ -74,7 +94,7 @@ class RssBuilder
         $atomLink = $dom->createElement('atom:link');
 
         $atomLinkAttr = [
-            'href' => '',
+            'href' => url('/') . '/' . $program->folder . '/rss',
             'rel' => 'self',
             'type' => 'application/rss+xml'
         ];
@@ -87,8 +107,8 @@ class RssBuilder
         $root->appendChild($atomLink);
 
         $tags = [
-            'author' => '<![CDATA[' . '' . $programs->title . '' . ']]>',
-            'copyright' => '<![CDATA[' . '' . $programs->title . '' . ']]>',
+            'author' => '<![CDATA[' . '' . $program->title . '' . ']]>',
+            'copyright' => '<![CDATA[' . '' . $program->title . '' . ']]>',
             'language' => '<![CDATA[pt-br]]>',
         ];
 
@@ -98,10 +118,11 @@ class RssBuilder
             );
         }
 
+
         $atomLink = $dom->createElement('atom:link');
 
         $atomLinkAttr = [
-            'href' => '',
+            'href' => 'https://pubsubhubbub.appspot.com/',
             'rel' => 'hub'
         ];
 
@@ -113,10 +134,11 @@ class RssBuilder
         $root->appendChild($atomLink);
 
         $tags = [
-            'itunes:author' => '<![CDATA[' . '' . $programs->title . '' . ']]>',
-            'itunes:summary' => '<![CDATA[' . '' . $programs->description . '' . ']]>',
+            'itunes:author' => '<![CDATA[' . '' . $program->title . '' . ']]>',
+            'itunes:summary' => '<![CDATA[' . '' . $program->description . '' . ']]>',
             'itunes:type' => 'episodic',
         ];
+
 
         foreach($tags as $tag => $value) {
             $root->appendChild(
@@ -129,8 +151,8 @@ class RssBuilder
         $root->appendChild($itunesOwner);
 
         $itunesOwnerTags = [
-            'itunes:name' => '',
-            'itunes:email' => ''
+            'itunes:name' => $program->title,
+            'itunes:email' => Auth::user()->email
         ];
 
         foreach($itunesOwnerTags as $tag => $value) {
@@ -139,9 +161,19 @@ class RssBuilder
             );
         }
 
-        $itunesExplicit = $dom->createElement('itunes:explicit', 'No');
+        $itunesExplicit = $dom->createElement('itunes:explicit', $program->settings->explicit_string);
 
         $root->appendChild($itunesExplicit);
+        
+        $categoryParentText = '';
+        $categories = [];
+        foreach($program->categories->toArray() as $category) {
+          if (is_null($category['parent_id'])) {
+            $categoryParentText = $category['name'];
+          } else {
+            $categories[] = $category['name'];
+          } 
+        }
 
         $categoryParentText = 'Sports';
         $itunesCategoryParent = $dom->createElement('itunes:category');
@@ -150,23 +182,19 @@ class RssBuilder
 
         $root->appendChild($itunesCategoryParent);
 
-        $categories = [
-            'itunes:category' => 'Basketball'
-        ];
-        
-        foreach($categories as $tag => $value) {
-            $newTag = $dom->createElement($tag);
+        foreach($categories as $value) {
+            $newTag = $dom->createElement('itunes:category');
             $newTag->setAttributeNode(new \DOMAttr('text', $value));
             $itunesCategoryParent->appendChild($newTag);
         }
 
-        $itunesImageHref = '';
+        $itunesImageHref = $baseUrlExploded . $program->images->path;
         $itunesImage = $dom->createElement('itunes:image');
         $itunesImage->setAttributeNode(new \DOMAttr('href', $itunesImageHref));
 
         $root->appendChild($itunesImage);
 
-        foreach($programs->episodes as $episode) {
+        foreach($program->episodes as $episode) {
             $item = $dom->createElement('item');
             $item->appendChild(
                 $dom->createElement('title', $episode->title)
@@ -180,20 +208,24 @@ class RssBuilder
                 $dom->createElement('link', '')
             );
 
-            $guid = $dom->createElement('guid', '');
+            $guid = $dom->createElement('guid', Str::uuid());
             $guid->setAttributeNode(new \DOMAttr('isPermaLink', false));
             $item->appendChild($guid);
 
             $item->appendChild(
-                $dom->createElement('dc:creator', '')
+                $dom->createElement('dc:creator', $program->title)
             );
 
             $item->appendChild(
-                $dom->createElement('pubDate', '')
+                $dom->createElement('pubDate', (new Carbon($episode->updated_at))->toRfc7231String())
             );
 
             $enclosure = $dom->createElement('enclosure');
-            $enclosure->setAttributeNode(new \DOMAttr('url', ''));
+
+            $enclosure->setAttributeNode(new \DOMAttr('url', $baseUrlExploded . $episode->audios->path));
+            $enclosure->setAttributeNode(new \DOMAttr('type', $episode->type));
+            $enclosure->setAttributeNode(new \DOMAttr('length', $episode->size));
+
             $item->appendChild($enclosure);
 
             $item->appendChild(
@@ -201,15 +233,15 @@ class RssBuilder
             );
 
             $item->appendChild(
-                $dom->createElement('itunes:summary', '')
+                $dom->createElement('itunes:summary', $episode->description)
             );
 
             $item->appendChild(
-                $dom->createElement('itunes:duration', '')
+                $dom->createElement('itunes:duration', $episode->duration)
             );
 
             $itunesImage = $dom->createElement('itunes:image');
-            $itunesImage->setAttributeNode(new \DOMAttr('href', ''));
+            $itunesImage->setAttributeNode(new \DOMAttr('href', $baseUrlExploded . $episode->images->path));
             $item->appendChild($itunesImage);
 
 
@@ -219,6 +251,8 @@ class RssBuilder
 
             $root->appendChild($item);
         }
+
+        dd($dom);
 
         return $dom;
     }

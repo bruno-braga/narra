@@ -8,6 +8,7 @@ use Illuminate\Notifications\Notifiable;
 
 use Illuminate\Support\Str;
 
+use App\Program;
 use App\Episode;
 
 class User extends Authenticatable
@@ -53,6 +54,11 @@ class User extends Authenticatable
         static::creating(function($user) {
             $user->{$user->getKeyName()} = (string) Str::uuid();
         });
+    }
+
+    public function programs()
+    {
+        return $this->hasMany(Program::class);
     }
 
     /**
