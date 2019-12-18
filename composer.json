@@ -12,7 +12,6 @@
         "fideloper/proxy": "^4.0",
         "laravel/framework": "^6.0",
         "laravel/tinker": "^1.0",
-        "mhor/php-mp3info": "^1.0",
         "nesbot/carbon": "^2.25",
         "sabre/xml": "^2.1",
         "spatie/laravel-feed": "^2.5"

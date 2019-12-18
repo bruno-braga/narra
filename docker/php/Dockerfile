@@ -10,7 +10,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   libpq-dev \
   libgmp-dev \
   libpng-dev \
-  mp3info \
   && docker-php-ext-install zip intl gd pdo pdo_mysql
 
 COPY ./docker/php/app/app.ini /usr/local/etc/php/conf.d/
