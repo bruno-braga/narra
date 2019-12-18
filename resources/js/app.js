@@ -10,9 +10,6 @@ import Vuelidate from 'vuelidate'
 import vueMultiselect from 'vue-multiselect'
 import 'vue-multiselect/dist/vue-multiselect.min.css';
 
-
-console.log(vueMultiselect)
-
 window.Vue = require('vue');
 
 Vue.use(Vuelidate);
