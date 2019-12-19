@@ -148,7 +148,7 @@
 
         let childCategories;
         if (this.program.childCategory) {
-          this.form.delte('category_id[]');
+          this.form.delete('category_id[]');
 
           childCategories = this.program.childCategory.map(category => (category.id));
           childCategories.forEach(id => this.form.append('category_id[]', id));
