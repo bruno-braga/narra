@@ -16,7 +16,7 @@
       <div class="col-md-6">
         <select class="form-control" v-model="setting.language_id">
           <option disabled value="">Choose a program</option>
-          <option v-for="language in languages" :value="language.id">{{ language.name }}</option>
+          <option v-for="language in languages" :value="language.id">{{ language.country }}</option>
         </select>
       </div>
     </div>
