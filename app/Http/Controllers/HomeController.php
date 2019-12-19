@@ -88,8 +88,8 @@ class HomeController extends Controller
 
         $dom = RssBuilder::build($program);
 
-        // Storage::disk('public')
-            // ->put(substr($program->images->path, 8, 15) . '/rss', $dom->saveXML());
+        Storage::disk('public')
+            ->put(substr($program->images->path, 8, 15) . '/rss', $dom->saveXML());
 
         return ('home');
     }
