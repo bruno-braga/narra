@@ -157,7 +157,7 @@ class ProgramsController extends Controller
         $program->update($data);
         $program->categories()->sync($categoryId);
 
-        return response()->json($this->program->getAll());
+        return response()->json(['success' => true]);
     }
 
     /**
