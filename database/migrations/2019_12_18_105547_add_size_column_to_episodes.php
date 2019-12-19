@@ -16,6 +16,8 @@ class AddSizeColumnToEpisodes extends Migration
         Schema::table('episodes', function (Blueprint $table) {
             $table
                 ->string('size')
+                ->nullable()
+                ->default(null)
                 ->after('type');
         });
     }

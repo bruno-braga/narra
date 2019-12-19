@@ -16,6 +16,8 @@ class AddTypeColumnToEpisodes extends Migration
         Schema::table('episodes', function (Blueprint $table) {
             $table
                 ->string('type')
+                ->nullable()
+                ->default(null)
                 ->after('duration');
         });
     }
