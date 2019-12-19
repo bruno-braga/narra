@@ -94,7 +94,7 @@
 
           this.program.parentCategory = this.data.categories.filter(category => {
             return category.parent_id == null
-          })
+          }).pop()
 
           this.program.childCategory = this.data.categories.filter(category => {
             if (category.parent_id != null) {
