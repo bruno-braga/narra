@@ -69,12 +69,15 @@ class Episode extends Model
             if ($episode->description === 'null' || $episode->description  === 'undefined') {
                 $episode->description = NULL;
             }
+        });
 
-            $episode->is_draft = $episode->setIsDraft(self::$file);
+        static::created(function($episode) {
+          $episode->is_draft = $episode->getIsDraft();
+          $episode->save();
         });
 
         static::updating(function($episode) {
-            $episode->is_draft = $episode->setIsDraft(self::$file);
+            $episode->is_draft = $episode->getIsDraft();
         });
 
         static::saving(function($episode) {
@@ -148,18 +151,15 @@ class Episode extends Model
         return $this->program->folder;
     }
 
-    private function setIsDraft($audio)
+    private function getIsDraft()
     {
         $isDraft = (
             is_null($this->title) ||
             is_null($this->description) ||
-            is_null($audio)
+            !$this->images()->exists() ||
+            !$this->audios()->exists()
         );
 
-        if ($isDraft) {
-            return true;
-        }
-
-        return false;
+        return $isDraft;
     }
 }
