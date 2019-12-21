@@ -76,7 +76,7 @@ class EpisodesController extends Controller
         return view(
             'episodes.create',
             [
-                'programs' => Program::all()
+                'programs' => Program::where('user_id', Auth::id())->get()
             ]
         );
     }
