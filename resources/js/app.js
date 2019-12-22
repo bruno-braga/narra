@@ -6,13 +6,13 @@
 
 require('./bootstrap');
 
-import Vuelidate from 'vuelidate'
+// import Vuelidate from 'vuelidate'
 import vueMultiselect from 'vue-multiselect'
 import 'vue-multiselect/dist/vue-multiselect.min.css';
 
 window.Vue = require('vue');
 
-Vue.use(Vuelidate);
+// Vue.use(Vuelidate);
 Vue.use(vueMultiselect);
 
 /**
