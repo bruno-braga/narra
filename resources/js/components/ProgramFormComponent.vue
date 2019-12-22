@@ -58,7 +58,7 @@
 
             <div class="col-md-6">
               <input name="file" type="file" ref="file" @change="setFile($event)" />
-              <div v-if="(inputFile.touched || submitted) && !program.file">
+              <div v-if="(inputFile.touched || submitted) && !isEdit && !program.file">
                 This field is required.
               </div>
             </div>
@@ -79,7 +79,7 @@
 
           <div class="form-group row mb-0">
             <div class="col-md-6 offset-md-4">
-              <button class="btn btn-primary" @click="fileValidation">
+              <button :disabled="submited" class="btn btn-primary" @click="fileValidation">
                 Submit
               </button>
               <span v-if="submitted">Carregando</span>
@@ -170,7 +170,7 @@
       async submit() {
         this.submitted = true;
 
-        if (!this.program.file) {
+        if (!this.program.file && !this.isEdit) {
           return
         }
 
