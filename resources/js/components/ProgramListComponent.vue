@@ -12,7 +12,7 @@
         <spinner :show="loadingHandler[i]"></spinner>
 
         <div class="float-right">
-          <a :href="`/programs/${program.id}/edit`" class="delete-span" style="cursor: pointer;">Edit</a> <b>|</b>
+          <a :href="`/programs/${program.slug}/edit`" class="delete-span" style="cursor: pointer;">Edit</a> <b>|</b>
           <span @click="msgHandler(i, 'delete')" class="delete-span" style="cursor: pointer;">Delete</span>
 
           <span v-if="msgHandlerArray[i]" class="float-left">

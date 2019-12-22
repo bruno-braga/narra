@@ -31,7 +31,7 @@ class ProgramsController extends Controller
      */
     public function index()
     {
-        $programs = Program::select(['programs.id', 'programs.title'])
+        $programs = Program::select(['programs.id', 'programs.title', 'programs.slug'])
             ->where('programs.user_id', Auth::id())
             ->with([
                 'images' => function($query) {

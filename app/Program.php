@@ -117,6 +117,16 @@ class Program extends Model
         return $this->path . '' . $this->filename;
     }
 
+		/**
+		 * Get the route key for the model.
+		 *
+		 * @return string
+		 */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
     /**
      * Tells if instance of Program has id or not
      *
