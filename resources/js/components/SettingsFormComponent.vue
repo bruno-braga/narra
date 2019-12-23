@@ -144,10 +144,11 @@
     },
     methods: {
       async submit() {
+        this.submitted = true;
         let response = await window.axios.put(this.route, { settings: this.setting });
 
         if (response) {
-          console.log(response);
+          window.location.replace('/programs')
         }
       }
     }
