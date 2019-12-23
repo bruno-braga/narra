@@ -12,6 +12,7 @@
         <spinner :show="loadingHandler[i]"></spinner>
 
         <div class="float-right">
+          <a :href="`/programs/${program.slug}/settings`" class="delete-span" style="cursor: pointer;">Settings</a> <b>|</b>
           <a :href="`/programs/${program.slug}/edit`" class="delete-span" style="cursor: pointer;">Edit</a> <b>|</b>
           <span @click="msgHandler(i, 'delete')" class="delete-span" style="cursor: pointer;">Delete</span>
 

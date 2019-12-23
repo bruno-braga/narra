@@ -23,11 +23,6 @@
           <ValidationProvider rules="required">
             <div slot-scope="{ errors }">
               <multiselect v-model="episode.programId" :options="programs" label="title"></multiselect>
-
-              <!-- <select @change="clearSubmitted" class="form-control" v-model="episode.programId">
-                <option value="">Choose a program</option>
-                <option v-for="program in programs" :value="program.id">{{ program.title }}</option>
-              </select> -->
               <p>{{ errors[0] }}</p>
             </div>
           </ValidationProvider>

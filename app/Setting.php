@@ -34,8 +34,19 @@ class Setting extends Model
         return $this->belongsTo(Program::class);
     }
 
+		/**
+		 * Get the route key for the model.
+		 *
+		 * @return string
+		 */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
     public function getExplicitStringAttribute()
     {
         return $this->explicit ? 'Yes' : 'No';
     }
+
 }
