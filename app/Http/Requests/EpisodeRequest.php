@@ -39,7 +39,7 @@ class EpisodeRequest extends FormRequest
     {
         return [
             'program_id.required' => 'Escolha um programa!',
-            'program_id.integer' => 'Escolha um programa!1',
+            'program_id.integer' => 'Escolha um programa!',
         ];
     }
 }
