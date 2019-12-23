@@ -44,7 +44,7 @@ class EpisodesController extends Controller
             ->where('programs.user_id', Auth::id())
             ->with([
                 'episodes' => function($query) {
-                  $query->select('id', 'program_id', 'title', 'is_draft', 'description')
+                  $query->select('id', 'program_id', 'title', 'is_draft', 'description', 'slug')
                       ->with([
                           'images' => function($query) {
                               $query->select('imageable_id', DB::raw('CONCAT(images.path, images.filename) as path'));
@@ -127,6 +127,8 @@ class EpisodesController extends Controller
      */
     public function edit(Episode $episode)
     {
+        $episode->load(['images', 'audios']);
+
         return view(
             'episodes.edit',
             [ 

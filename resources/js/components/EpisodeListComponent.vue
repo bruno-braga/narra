@@ -22,7 +22,7 @@
 
 
           <div class="float-right">
-            <a :href="`/episodes/${episode.id}/edit`" style="cursor: pointer;">Edit</a> <b>|</b>
+            <a :href="`/episodes/${episode.slug}/edit`" style="cursor: pointer;">Edit</a> <b>|</b>
             <span @click="msgHandler(episodeIndex, 'delete')" class="delete-span" style="cursor: pointer;">Delete</span>
 
             <span v-if="msgHandlerArray[episodeIndex]" class="float-left">
@@ -72,7 +72,7 @@
         this.$set(this.msgHandlerArray, i, val);
       },
       async confirm(programIndex, episodeIndex, episode) {
-        let response = await window.axios.delete(`${this.route}/${episode.id}`);
+        let response = await window.axios.delete(`${this.route}/${episode.slug}`);
 
         if (response == 204) {
           let index = this.programs[programIndex].episodes.indexOf(episode)

@@ -108,7 +108,7 @@
     },
     computed: {
       buttonTitle() {
-        if (!this.episode.programId || !this.episode.file || !this.episode.cover || !this.episode.description) {
+        if ((!this.episode.programId || !this.episode.file || !this.episode.cover || !this.episode.description) && (this.data.episodes || this.data.audio)) {
           return 'Salvar como rascunho'
         }
 
@@ -120,6 +120,10 @@
           this.episode.title = this.data.title;
           this.episode.programId = this.data.program_id;
           this.episode.description = this.data.description;
+
+          this.episode.programId = this.programs.filter(program => {
+            return program.id == this.data.program_id
+          }).pop()
       }
 
       if (this.isEdit) {
