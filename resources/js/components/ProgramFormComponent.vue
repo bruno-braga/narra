@@ -79,7 +79,7 @@
 
           <div class="form-group row mb-0">
             <div class="col-md-6 offset-md-4">
-              <button :disabled="submited" class="btn btn-primary" @click="fileValidation">
+              <button :disabled="submitted" class="btn btn-primary" @click="fileValidation">
                 Submit
               </button>
               <span v-if="submitted">Carregando</span>
@@ -190,6 +190,8 @@
         this.form.append('description', this.program.description);
 
         let response = await window.axios.post(this.instanceRoute, this.form);
+
+        response = null
 
         if (response) {
           this.submitted = false;
