@@ -6,9 +6,9 @@
       <setting-form-component 
         :languages='@json($languages)'
         :is-edit="false"
-        :data="null"
+        :data='@json($settings)'
         :token="'{{ csrf_token() }}'" 
-        :route="'{{ route('storeSettings', $id) }}'"
+        :route="'{{ route('storeSettings', $program->slug) }}'"
       >
       </setting-form-component>
     </div>

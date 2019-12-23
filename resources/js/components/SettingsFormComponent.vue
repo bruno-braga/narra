@@ -61,33 +61,6 @@
       </div>
     </div>
 
-    <!-- <div class="form-group row">
-        <label for="title" class="col-md-4 col-form-label text-md-right">Program</label>
-
-      <div class="col-md-6">
-        <select class="form-control" v-model="setting.category">
-          <option disabled value="">Choose a program</option>
-          <option v-for="category in categories" :value="category">{{ category }}</option>
-        </select>
-      </div>
-    </div> -->
-
-    <!-- <div class="form-group row">
-      <label for="item_author" class="col-md-4 col-form-label text-md-right">Item Author</label>
-
-      <div class="col-md-6">
-        <input v-model="setting.item_author" id="item_author" type="text" class="form-control" name="item_author" autocomplete="item_author" autofocus>
-      </div>
-    </div>
-
-    <div class="form-group row">
-      <label for="item_mp3_length" class="col-md-4 col-form-label text-md-right">Item mp3 length</label>
-
-      <div class="col-md-6">
-        <input v-model="setting.item_mp3_length" id="item_mp3_length" type="text" class="form-control" name="item_mp3_length" autocomplete="item_mp3_length" autofocus>
-      </div>
-    </div> -->
-
     <div class="form-group row mb-0">
       <div class="col-md-6 offset-md-4">
         <button class="btn btn-primary">
@@ -115,6 +88,7 @@
       return {
         setting: {
           language_id: null,
+          explicit: null,
           copyright: null,
           subtitle: null,
           author: null,
@@ -125,9 +99,13 @@
         form: new FormData()
       }
     },
-    validations: {
-    },
     created() {
+      if (this.data) {
+        Object.keys(this.setting).forEach(key => {
+          console.log(key)
+          this.setting[key] = this.data[key]
+        });
+      }
     },
     methods: {
       clearSubmitted() {
@@ -136,7 +114,7 @@
         }
       },
       async submit() {
-        let response = await window.axios.post(this.route, { settings: this.setting });
+        let response = await window.axios.put(this.route, { settings: this.setting });
 
         if (response) {
           console.log(response);

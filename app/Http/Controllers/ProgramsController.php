@@ -90,6 +90,15 @@ class ProgramsController extends Controller
         $program = new Program($data);
         $program->save();
 
+        $program->settings()->create([
+            'language_id' => 1,
+            'copyright' => $program->title,
+            'explicit' => 0,
+            'subtitle' => $program->title,
+            'author' => $program->title,
+            'owner_name' => Auth::user()->email
+        ]);
+
         $program->categories()->attach($request->input('category_id'));
 
         return response()->json(new ProgramCollection($program));
@@ -180,13 +189,14 @@ class ProgramsController extends Controller
         return response()->json(204);
     }
 
-    public function settings(int $id)
+    public function settings(Program $program)
     {
         return view(
             'settings.index',
             [
                 'languages' => $this->language->getAll(),
-                'id' => $id
+                'settings' => $program->settings,
+                'program' => $program,
             ]
         );
     }
@@ -195,6 +205,6 @@ class ProgramsController extends Controller
     {
         return $program
             ->settings()
-            ->create($request->input('settings'));
+            ->update($request->input('settings'));
     }
 }
