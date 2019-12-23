@@ -127,6 +127,16 @@ class Episode extends Model
         return $this->belongsTo(Program::class);
     }
 
+		/**
+		 * Get the route key for the model.
+		 *
+		 * @return string
+		 */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
     /**
      * Tells if instance of Episode has id or not
      *
