@@ -191,8 +191,6 @@
 
         let response = await window.axios.post(this.instanceRoute, this.form);
 
-        response = null
-
         if (response) {
           this.submitted = false;
           this.$refs.file.value = '';
