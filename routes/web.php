@@ -24,13 +24,13 @@ Route::get('/fd/{id}', 'HomeController@fd');
 Route::resource('/episodes', 'EpisodesController');
 Route::resource('/programs', 'ProgramsController');
 
-Route::get('/programs/{program}/settings', 'ProgramsController@settings');
+Route::get('/settings/{program}', 'ProgramsController@settings');
 
-Route::post(
-  '/programs/{program}/settings',
+Route::put(
+  '/settings/{program}',
   'ProgramsController@storeSettings'
 )
-->name('storeSettings');
+  ->name('storeSettings'); 
 
 Route::get('/{program}', 'HomeController@program');
 
