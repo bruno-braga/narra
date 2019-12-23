@@ -1,66 +1,83 @@
 <template>
-  <form @submit.prevent="submit">
-    <input type="hidden" name="_token" :value="token" />
+  <ValidationObserver v-slot="{ handleSubmit }"> 
+    <form @submit.prevent="handleSubmit(submit)">
+      <input type="hidden" name="_token" :value="token" />
 
-    <div class="form-group row">
-      <label for="title" class="col-md-4 col-form-label text-md-right">Title</label>
+      <div class="form-group row">
+        <label for="title" class="col-md-4 col-form-label text-md-right">Title</label>
 
-      <div class="col-md-6">
-        <input v-model="episode.title" id="title" type="text" class="form-control" name="title" autocomplete="title" autofocus>
+        <div class="col-md-6">
+          <ValidationProvider rules="required">
+            <div slot-scope="{ errors }">
+              <input v-model="episode.title" id="title" type="text" class="form-control" name="title" autocomplete="title">
+              <p>{{ errors[0] }}</p>
+            </div>
+          </ValidationProvider>
+        </div>
       </div>
-    </div>
 
-    <div class="form-group row">
-        <label for="title" class="col-md-4 col-form-label text-md-right">Program</label>
+      <div class="form-group row">
+          <label for="title" class="col-md-4 col-form-label text-md-right">Program</label>
 
-      <div class="col-md-6">
-        <select @change="clearSubmitted" class="form-control" v-model="episode.programId">
-          <option disabled value="">Choose a program</option>
-          <option v-for="program in programs" :value="program.id">{{ program.title }}</option>
-        </select>
+        <div class="col-md-6">
+          <ValidationProvider rules="required">
+            <div slot-scope="{ errors }">
+              <multiselect v-model="episode.programId" :options="programs" label="title"></multiselect>
+
+              <!-- <select @change="clearSubmitted" class="form-control" v-model="episode.programId">
+                <option value="">Choose a program</option>
+                <option v-for="program in programs" :value="program.id">{{ program.title }}</option>
+              </select> -->
+              <p>{{ errors[0] }}</p>
+            </div>
+          </ValidationProvider>
+        </div>
       </div>
-    </div>
 
-    <div class="form-group row">
-      <label for="file" class="col-md-4 col-form-label text-md-right">Audio</label>
+      <div class="form-group row">
+        <label for="file" class="col-md-4 col-form-label text-md-right">Audio</label>
 
-      <div class="col-md-6">
-        <input ref="audio" name="file" type="file" @change="setFile($event)" />
+        <div class="col-md-6">
+          <input ref="audio" name="file" type="file" @change="setFile($event)" />
+        </div>
       </div>
-    </div>
 
-    <div class="form-group row">
-      <label for="cover" class="col-md-4 col-form-label text-md-right">Cover</label>
+      <div class="form-group row">
+        <label for="cover" class="col-md-4 col-form-label text-md-right">Cover</label>
 
-      <div class="col-md-6">
-        <input ref="cover" name="cover" type="file" @change="setCover($event)" />
+        <div class="col-md-6">
+          <input ref="cover" name="cover" type="file" @change="setCover($event)" />
+        </div>
       </div>
-    </div>
 
-    <div class="form-group row">
-      <label for="description" class="col-md-4 col-form-label text-md-right">Description</label>
+      <div class="form-group row">
+        <label for="description" class="col-md-4 col-form-label text-md-right">Description</label>
 
-      <div class="col-md-6">
-        <textarea v-model="episode.description" name="description"></textarea>
+        <div class="col-md-6">
+          <textarea v-model="episode.description" name="description"></textarea>
+        </div>
       </div>
-    </div>
 
-    <div class="form-group row mb-0">
-      <div class="col-md-6 offset-md-4">
-        <button class="btn btn-primary">
-          Submit
-        </button>
+      <div class="form-group row mb-0">
+        <div class="col-md-6 offset-md-4">
+          <button :disabled="submitted" class="btn btn-primary">
+            {{ buttonTitle }}
+          </button>
+          <span v-if="submitted">Carregando</span>
+        </div>
       </div>
-    </div>
-
-    <div id="error-msg" v-if="$v.episode.programId.$invalid && submitted">
-      Escolha um programa!
-    </div>
-  </form>
+    </form>
+  </ValidationObserver>
 </template>
 
 <script>
-  import { required } from 'vuelidate/lib/validators';
+  import { ValidationProvider, ValidationObserver, extend } from 'vee-validate';
+  import { required } from 'vee-validate/dist/rules';
+
+  extend('required', {
+      ...required,
+      message: 'This field is required'
+  });
 
   export default {
     name: 'episodeFormComponent',
@@ -71,6 +88,10 @@
       'route',
       'token'
     ],
+    components: {
+      ValidationProvider,
+      ValidationObserver
+    },
     data() {
       return {
         episode: {
@@ -85,9 +106,13 @@
         form: new FormData()
       }
     },
-    validations: {
-      episode: {
-        programId: { required }
+    computed: {
+      buttonTitle() {
+        if (!this.episode.programId || !this.episode.file || !this.episode.cover || !this.episode.description) {
+          return 'Salvar como rascunho'
+        }
+
+        return 'Salvar'
       }
     },
     created() {
@@ -109,10 +134,12 @@
         }
       },
       setFile(event) {
+        this.form.delete('file')
         this.episode.file = event.target.files[0]
         event.target.files = null;
       },
       setCover(event) {
+        this.form.delete('cover')
         this.episode.cover = event.target.files[0]
         event.target.files = null;
       },
@@ -125,10 +152,6 @@
       async submit() {
         this.submitted = true;
 
-        if (this.$v.episode.programId.$invalid) {
-          return
-        }
-        
         let blob;
         let audio;
         if (this.episode.file) {
@@ -143,7 +166,7 @@
 
         this.form.append('_token', this.token);
         this.form.append('title', this.episode.title);
-        this.form.append('program_id', this.episode.programId);
+        this.form.append('program_id', this.episode.programId.id);
 
         this.form.append('cover', this.episode.cover);
         this.form.append('description', this.episode.description);
@@ -163,6 +186,7 @@
             this.episode[key] = null
           }
 
+          window.location.replace('/episodes');
           this.submitted = false;
         }
       }
