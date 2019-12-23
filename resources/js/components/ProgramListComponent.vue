@@ -58,7 +58,7 @@
         this.$set(this.msgHandlerArray, i, val);
       },
       async confirm(i, program) {
-        let { data } = await window.axios.delete(`${this.route}/${program.id}`);
+        let { data } = await window.axios.delete(`${this.route}/${program.slug}`);
 
         this.$set(this.loadingHandler, i, !this.loadingHandler[i]);
 
