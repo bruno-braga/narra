@@ -1,78 +1,109 @@
 <template>
-  <form @submit.prevent="submit">
-    <input type="hidden" name="_token" :value="token" />
+  <ValidationObserver v-slot="{ handleSubmit }"> 
+    <form @submit.prevent="submit">
+      <input type="hidden" name="_token" :value="token" />
 
-    <!-- <div class="form-group row">
-      <label for="language" class="col-md-4 col-form-label text-md-right">Language</label>
+      <div class="form-group row">
+        <label for="title" class="col-md-4 col-form-label text-md-right">Language <span style="color: red;">*</span></label>
 
-      <div class="col-md-6">
-        <input v-model="setting.language" id="language" type="text" class="form-control" name="language" autocomplete="language" autofocus>
+        <div class="col-md-6">
+          <ValidationProvider rules="required">
+            <div slot-scope="{ errors }">
+              <select class="form-control" v-model="setting.language_id">
+                <option disabled value="">Choose a program</option>
+                <option v-for="language in languages" :value="language.id">{{ language.country }}</option>
+              </select>
+              <p>{{ errors[0] }}</p>
+            </div>
+          </ValidationProvider>
+        </div>
       </div>
-    </div> -->
 
-    <div class="form-group row">
-      <label for="title" class="col-md-4 col-form-label text-md-right">Language</label>
+      <div class="form-group row">
+        <label for="copyright" class="col-md-4 col-form-label text-md-right">Copyright <span style="color: red;">*</span></label>
 
-      <div class="col-md-6">
-        <select class="form-control" v-model="setting.language_id">
-          <option disabled value="">Choose a program</option>
-          <option v-for="language in languages" :value="language.id">{{ language.country }}</option>
-        </select>
+        <div class="col-md-6">
+          <ValidationProvider rules="required">
+            <div slot-scope="{ errors }">
+              <input v-model="setting.copyright" id="copyright" type="text" class="form-control" name="copyright" autocomplete="copyright" autofocus>
+              <p>{{ errors[0] }}</p>
+            </div>
+          </ValidationProvider>
+        </div>
       </div>
-    </div>
 
-    <div class="form-group row">
-      <label for="copyright" class="col-md-4 col-form-label text-md-right">Copyright</label>
+      <div class="form-group row">
+        <label for="explicit" class="col-md-4 col-form-label text-md-right">Explicit <span style="color: red;">*</span></label>
 
-      <div class="col-md-6">
-        <input v-model="setting.copyright" id="copyright" type="text" class="form-control" name="copyright" autocomplete="copyright" autofocus>
+        <div class="col-md-6">
+          <ValidationProvider rules="required">
+            <div slot-scope="{ errors }">
+              <input v-model="setting.explicit" id="copyright" type="checkbox" name="explicit" autocomplete="explicit" autofocus>
+              <p>{{ errors[0] }}</p>
+            </div>
+          </ValidationProvider>
+        </div>
       </div>
-    </div>
 
-    <div class="form-group row">
-      <label for="explicit" class="col-md-4 col-form-label text-md-right">Explicit</label>
+      <div class="form-group row">
+        <label for="subtitle" class="col-md-4 col-form-label text-md-right">Subtitle <span style="color: red;">*</span></label>
 
-      <div class="col-md-6">
-        <input v-model="setting.explicit" id="copyright" type="checkbox" name="explicit" autocomplete="explicit" autofocus>
+        <div class="col-md-6">
+          <ValidationProvider rules="required">
+            <div slot-scope="{ errors }">
+              <input v-model="setting.subtitle" id="subtitle" type="text" class="form-control" name="subtitle" autocomplete="subtitle" autofocus>
+              <p>{{ errors[0] }}</p>
+            </div>
+          </ValidationProvider>
+        </div>
       </div>
-    </div>
 
-    <div class="form-group row">
-      <label for="subtitle" class="col-md-4 col-form-label text-md-right">Subtitle</label>
+      <div class="form-group row">
+        <label for="author" class="col-md-4 col-form-label text-md-right">Author <span style="color: red;">*</span></label>
 
-      <div class="col-md-6">
-        <input v-model="setting.subtitle" id="subtitle" type="text" class="form-control" name="subtitle" autocomplete="subtitle" autofocus>
+        <div class="col-md-6">
+          <ValidationProvider rules="required">
+            <div slot-scope="{ errors }">
+              <input v-model="setting.author" id="author" type="text" class="form-control" name="author" autocomplete="author" autofocus>
+              <p>{{ errors[0] }}</p>
+            </div>
+          </ValidationProvider>
+        </div>
       </div>
-    </div>
 
-    <div class="form-group row">
-      <label for="author" class="col-md-4 col-form-label text-md-right">Author</label>
+      <div class="form-group row">
+        <label for="owner_name" class="col-md-4 col-form-label text-md-right">Owener Name <span style="color: red;">*</span></label>
 
-      <div class="col-md-6">
-        <input v-model="setting.author" id="author" type="text" class="form-control" name="author" autocomplete="author" autofocus>
+        <div class="col-md-6">
+          <ValidationProvider rules="required">
+            <div slot-scope="{ errors }">
+              <input v-model="setting.owner_name" id="owner_name" type="text" class="form-control" name="owner_name" autocomplete="owner_name" autofocus>
+              <p>{{ errors[0] }}</p>
+            </div>
+          </ValidationProvider>
+        </div>
       </div>
-    </div>
 
-    <div class="form-group row">
-      <label for="owner_name" class="col-md-4 col-form-label text-md-right">Owener Name</label>
-
-      <div class="col-md-6">
-        <input v-model="setting.owner_name" id="owner_name" type="text" class="form-control" name="owner_name" autocomplete="owner_name" autofocus>
+      <div class="form-group row mb-0">
+        <div class="col-md-6 offset-md-4">
+          <button :disabled="submitted" class="btn btn-primary">
+            Salvar
+          </button>
+          <span v-if="submitted">Carregando</span>
+        </div>
       </div>
-    </div>
-
-    <div class="form-group row mb-0">
-      <div class="col-md-6 offset-md-4">
-        <button class="btn btn-primary">
-          Submit
-        </button>
-      </div>
-    </div>
-  </form>
+    </form>
+  </ValidationObserver>
 </template>
 
 <script>
-  import { required } from 'vuelidate/lib/validators';
+  import { ValidationProvider, ValidationObserver, extend } from 'vee-validate';
+  import { required } from 'vee-validate/dist/rules';
+
+  extend('required', {
+      ...required,
+      message: 'This field is required'
+  });
 
   export default {
     name: 'settingsFormComponent',
@@ -84,6 +115,11 @@
       'route',
       'token'
     ],
+    components: {
+      ValidationProvider,
+      ValidationObserver
+    },
+
     data() {
       return {
         setting: {
@@ -102,17 +138,11 @@
     created() {
       if (this.data) {
         Object.keys(this.setting).forEach(key => {
-          console.log(key)
           this.setting[key] = this.data[key]
         });
       }
     },
     methods: {
-      clearSubmitted() {
-        if (this.episode.programId != '') {
-          this.submitted = false;
-        }
-      },
       async submit() {
         let response = await window.axios.put(this.route, { settings: this.setting });
 
