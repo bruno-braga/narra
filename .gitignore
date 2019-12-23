@@ -33,5 +33,8 @@ public/js/app.js
 #vim
 .*.*.swp
 .*.*.swm
+.*.*.swl
+*.swp
+*.swo
 
 *.php~
