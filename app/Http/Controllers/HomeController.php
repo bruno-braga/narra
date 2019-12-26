@@ -55,6 +55,13 @@ class HomeController extends Controller
         dd($program->get()->toArray());
     }
 
+    public function episode(Program $program, Episode $episode)
+    {
+        $episode->load(['images', 'audios']);
+
+        dd($episode->toArray());
+    }
+
     public function fd($id)
     {
         $program = Program::select(['programs.id', 'programs.user_id', 'programs.title', 'programs.slug', 'programs.description', 'programs.folder'])
