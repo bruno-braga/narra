@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Program;
+use App\Language;
 
 class Setting extends Model
 {
@@ -29,9 +30,14 @@ class Setting extends Model
      *
      * @return Illuminate\Database\Eloquent\Relations\belongsTo
      */
-    public function setting()
+    public function program()
     {
         return $this->belongsTo(Program::class);
+    }
+
+    public function language()
+    {
+        return $this->belongsTo(Language::class);
     }
 
 		/**
