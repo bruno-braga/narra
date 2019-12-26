@@ -69,6 +69,8 @@ class Episode extends Model
             if ($episode->description === 'null' || $episode->description  === 'undefined') {
                 $episode->description = NULL;
             }
+
+            $episode->slug = Str::slug($episode->title, '-');
         });
 
         static::created(function($episode) {
@@ -78,6 +80,7 @@ class Episode extends Model
 
         static::updating(function($episode) {
             $episode->is_draft = $episode->getIsDraft();
+            $episode->slug = Str::slug($episode->title, '-');
         });
 
         static::saving(function($episode) {
