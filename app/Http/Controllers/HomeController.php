@@ -14,6 +14,7 @@ use App\Repository\EpisodeRepositoryInterface;
 use App\Repository\ProgramRepositoryInterface;
 
 use App\Program;
+use App\Episode;
 
 use Carbon\Carbon;
 
@@ -72,7 +73,7 @@ class HomeController extends Controller
                     $query->select('categories.id', 'categories.name', 'categories.parent_id');
                 },
                 'episodes' => function($query) {
-                    $query->select('episodes.id', 'episodes.program_id', 'title', 'description', 'duration', 'size', 'type', 'updated_at')
+                    $query->select('episodes.id', 'episodes.program_id', 'title', 'slug', 'description', 'duration', 'size', 'type', 'updated_at')
                         ->where('is_draft', false)
                         ->with([
                             'images' => function($query) {
@@ -87,11 +88,12 @@ class HomeController extends Controller
                     $query->select('imageable_id', DB::raw('CONCAT(images.path, images.filename) as path'));
                 },
                 'settings' => function($query) {
-                    $query->select('id', 'program_id', 'explicit');
+                    $query->select('id', 'program_id', 'language_id', 'explicit')->with('language');
                 }
             ])
             ->get()
             ->first();
+
 
         $dom = RssBuilder::build($program);
 
