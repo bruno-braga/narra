@@ -3,7 +3,9 @@
 namespace App;
 
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
@@ -13,6 +15,7 @@ use App\Image;
 use App\Program;
 
 use App\Traits\UploadTrait;
+use App\Rss\RssBuilder;
 
 class Episode extends Model
 {
@@ -56,11 +59,6 @@ class Episode extends Model
     {
         parent::boot();
 
-        static::created(function($episode) {
-            $episode->storeOnFileAndDb(self::$cover, 'images', $episode);
-            $episode->storeOnFileAndDb(self::$file, 'audios', $episode);
-        });
-
         static::creating(function($episode) {
             if ($episode->title === 'null' || $episode->title === 'undefined') {
                 $episode->title = NULL;
@@ -74,8 +72,47 @@ class Episode extends Model
         });
 
         static::created(function($episode) {
-          $episode->is_draft = $episode->getIsDraft();
-          $episode->save();
+            $episode->is_draft = $episode->getIsDraft();
+            $episode->save();
+
+            $episode->storeOnFileAndDb(self::$cover, 'images', $episode);
+            $episode->storeOnFileAndDb(self::$file, 'audios', $episode);
+
+            if (!$episode->is_draft) {
+                $program = Program::select(['programs.id', 'programs.user_id', 'programs.title', 'programs.slug', 'programs.description', 'programs.folder'])
+                    ->where('programs.user_id', Auth::id())
+                    ->where('programs.slug', $episode->program->slug)
+                    ->with([
+                        'categories' => function($query) {
+                            $query->select('categories.id', 'categories.name', 'categories.parent_id');
+                        },
+                        'episodes' => function($query) {
+                            $query->select('episodes.id', 'episodes.program_id', 'title', 'slug', 'description', 'duration', 'size', 'type', 'updated_at')
+                                ->where('is_draft', false)
+                                ->with([
+                                    'images' => function($query) {
+                                        $query->select('imageable_id', DB::raw('CONCAT(images.path, images.filename) as path'));
+                                    },
+                                    'audios' => function($query) {
+                                        $query->select('audiable_id', DB::raw('CONCAT(audios.path, audios.filename) as path'));
+                                    }
+                                ]);
+                        },
+                        'images' => function($query) {
+                            $query->select('imageable_id', DB::raw('CONCAT(images.path, images.filename) as path'));
+                        },
+                        'settings' => function($query) {
+                            $query->select('id', 'program_id', 'language_id', 'explicit')->with('language');
+                        }
+                    ])
+                    ->get()
+                    ->first();
+
+                $dom = RssBuilder::build($program);
+
+                Storage::disk('public')
+                    ->put(substr($program->images->path, 8, 15) . '/rss', $dom->saveXML());
+            }
         });
 
         static::updating(function($episode) {
