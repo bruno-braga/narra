@@ -14,6 +14,7 @@ class RssBuilder
     {
         $baseUrl = url('/') . '/';
 
+        // TO DO: remove this and use url('/') when necessary
         // next 3 lines
         // removes / at the end of $baseUrl
         // so can create proper img path 
@@ -46,22 +47,19 @@ class RssBuilder
 
         $root->appendChild($channel);
 
-        // dump($program->episodes->first()->images->path);
-        // dump($program->images->toArray());
-
-        // dump(url('/'));
-
-        // dd($program->toArray());
         $channelTags = [
-            'title' => '<![CDATA[' . '' . $program->title . '' . ']]>',
-            'description' => '<![CDATA[' . '' . $program->description . '' . ']]>',
-            'link' => '<![CDATA[' . '' . $baseUrl . $program->slug . '' . ']]>'
+            'title' => $program->title,
+            'description' => $program->description,
+            'link' => url('/') . '/' . $program->slug
         ];
 
         foreach($channelTags as $tag => $value) {
-            $channel->appendChild(
-                $dom->createElement($tag, $value)
+            $item = $dom->createElement($tag);
+            $item->appendChild(
+                $dom->createCDATASection($value)
             );
+
+            $channel->appendChild($item);
         }
 
         $image = $dom->createElement('image');
@@ -107,17 +105,19 @@ class RssBuilder
         $root->appendChild($atomLink);
 
         $tags = [
-            'author' => '<![CDATA[' . '' . $program->title . '' . ']]>',
-            'copyright' => '<![CDATA[' . '' . $program->title . '' . ']]>',
-            'language' => '<![CDATA[pt-br]]>',
+            'author' => $program->title,
+            'copyright' => $program->title,
+            'language' => $program->settings->language->iso_639_2,
         ];
 
         foreach($tags as $tag => $value) {
-            $root->appendChild(
-                $dom->createElement($tag, $value)
+            $item = $dom->createElement($tag);
+            $item->appendChild(
+                $dom->createCDATASection($value)
             );
-        }
 
+            $root->appendChild($item);
+        }
 
         $atomLink = $dom->createElement('atom:link');
 
@@ -134,16 +134,18 @@ class RssBuilder
         $root->appendChild($atomLink);
 
         $tags = [
-            'itunes:author' => '<![CDATA[' . '' . $program->title . '' . ']]>',
-            'itunes:summary' => '<![CDATA[' . '' . $program->description . '' . ']]>',
+            'itunes:author' => $program->title,
+            'itunes:summary' => $program->description,
             'itunes:type' => 'episodic',
         ];
 
-
         foreach($tags as $tag => $value) {
-            $root->appendChild(
-                $dom->createElement($tag, $value)
+            $item = $dom->createElement($tag);
+            $item->appendChild(
+                $dom->createCDATASection($value)
             );
+
+            $root->appendChild($item);
         }
 
         $itunesOwner = $dom->createElement('itunes:owner');
@@ -205,7 +207,7 @@ class RssBuilder
             );
 
             $item->appendChild(
-                $dom->createElement('link', '')
+                $dom->createElement('link', url('/') . '/' . $program->slug . '/episode/' . $episode->slug)
             );
 
             $guid = $dom->createElement('guid', Str::uuid());
@@ -229,7 +231,7 @@ class RssBuilder
             $item->appendChild($enclosure);
 
             $item->appendChild(
-                $dom->createElement('itunes:explicit', '')
+                $dom->createElement('itunes:explicit', $program->settings->explicit_string)
             );
 
             $item->appendChild(
@@ -246,13 +248,11 @@ class RssBuilder
 
 
             $item->appendChild(
-                $dom->createElement('itunes:episodeType', '')
+                $dom->createElement('itunes:episodeType', 'full')
             );
 
             $root->appendChild($item);
         }
-
-        dd($dom);
 
         return $dom;
     }
