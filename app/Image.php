@@ -14,8 +14,8 @@ class Image extends Model
         return $this->morphTo();
     }
 
-    // public function getImagePathAttribute()
-    // {
-        // return $this->path . '' . $this->filename;
-    // }
+    public function getImagePathAttribute()
+    {
+        return $this->path . '' . $this->filename;
+    }
 }
