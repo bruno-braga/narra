@@ -12,6 +12,7 @@
         <spinner :show="loadingHandler[i]"></spinner>
 
         <div class="float-right">
+          <span @click="generateRss(program)" class="delete-span" style="cursor: pointer;">Generate Rss</span> <b>|</b>
           <a :href="`/settings/${program.slug}`" class="delete-span" style="cursor: pointer;">Settings</a> <b>|</b>
           <a :href="`/programs/${program.slug}/edit`" class="delete-span" style="cursor: pointer;">Edit</a> <b>|</b>
           <span @click="msgHandler(i, 'delete')" class="delete-span" style="cursor: pointer;">Delete</span>
@@ -71,6 +72,9 @@
           this.loadingHandler.splice(i, 1);
           this.msgHandlerArray.splice(i, 1);
         }
+      },
+      async generateRss(program) {
+        let { data } = await window.axios.post(`/feed/${program.slug}`);
       }
     }
   }
