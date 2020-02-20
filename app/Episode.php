@@ -164,8 +164,8 @@ class Episode extends Model
         });
 
         static::deleting(function($episode) {
-            $episode->deleteFileAndDb($episode, 'images');
-            $episode->deleteFileAndDb($episode, 'audios');
+            $episode->deleteFileAndDb('images');
+            $episode->deleteFileAndDb('audios');
         });
     }
 
