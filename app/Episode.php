@@ -68,15 +68,16 @@ class Episode extends Model
                 $episode->description = NULL;
             }
 
+            if (!is_null(self::$cover) && !is_null(self::$file)) {
+              $episode->is_draft = false;
+            }
+
             $episode->slug = Str::slug($episode->title, '-');
         });
 
         static::created(function($episode) {
-            $episode->is_draft = $episode->getIsDraft();
-            $episode->save();
-
-            $episode->storeOnFileAndDb(self::$cover, 'images', $episode);
-            $episode->storeOnFileAndDb(self::$file, 'audios', $episode);
+            $episode->storeOnFileAndDb(self::$cover, 'images');
+            $episode->storeOnFileAndDb(self::$file, 'audios');
 
             if (!$episode->is_draft) {
                 $program = Program::select(['programs.id', 'programs.user_id', 'programs.title', 'programs.slug', 'programs.description', 'programs.folder'])
@@ -159,8 +160,8 @@ class Episode extends Model
         });
 
         static::saving(function($episode) {
-            $episode->updateFileAndDb(self::$cover, 'images', $episode);
-            $episode->updateFileAndDb(self::$file, 'audios', $episode);
+            $episode->updateFileAndDb(self::$cover, 'images');
+            $episode->updateFileAndDb(self::$file, 'audios');
         });
 
         static::deleting(function($episode) {
