@@ -18,7 +18,7 @@ trait UploadTrait
      */
     private function createFileName($file, $entity)
     {
-        return $entity->id . '_' . $file->getClientOriginalName();
+        return $entity->id . '_' . str_replace('/', ':', $file->getClientOriginalName());
     } 
 
 
