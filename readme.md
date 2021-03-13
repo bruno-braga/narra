@@ -1,6 +1,6 @@
 # Narra
 
-Manage your podcast auto generate its RSS feed.
+Manage your podcast and auto generate its RSS feed.
 
 ## Installation
 
